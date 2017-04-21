@@ -1,0 +1,37 @@
+<!doctype html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <title>Vue.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<div id="app">
+    <h3>Simple data binding. {{message}}</h3>
+    <div>
+        <label for="dataBinding">Two way data binding</label>
+        <input type="text" v-model="message" id="dataBinding">
+    </div>
+
+    <h3>Directives</h3>
+    <div>
+        <label for="v-show-dir" v-show="message">v-show, elem will remain in DOM</label>
+        <textarea id="v-show-dir" v-model="message"></textarea>
+        <br>
+        <label for="v-if-dir" v-if="message">v-if, elem will not remain in DOM</label>
+        <textarea id="v-if-dir" v-model="message"></textarea>
+    </div>
+
+    <h3></h3>
+    <div>
+
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="js/hello.js"></script>
+</body>
+</html>
