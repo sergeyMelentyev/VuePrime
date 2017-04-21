@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8">
     <title>Vue.js</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
 <div id="app">
-    <h3>Simple data binding. {{message}}</h3>
+<!--
+    <h3>Data binding. {{message}}</h3>
     <div>
         <label for="dataBinding">Two way data binding</label>
         <input type="text" v-model="message" id="dataBinding">
@@ -23,11 +23,38 @@
         <br>
         <label for="v-if-dir" v-if="message">v-if, elem will not remain in DOM</label>
         <textarea id="v-if-dir" v-model="message"></textarea>
+        <br>
+        <template v-if="message">this DOM element will not be shown
+            <p>data inside template tag will be shown according to v-if condition</p>
+        </template>
+        <template v-else>
+            <p>must follow v-if directive</p>
+        </template>
     </div>
 
-    <h3></h3>
+    <h3>List Rendering</h3>
+    <div class="container-fluid">
+        <ul class="list-group">
+            <li v-for="i in 2" class="list-group-item">
+                if int is passed, will repeat template {{ i }} time(s)
+            </li>
+            <li v-for="(item, index) in arr" class="list-group-item">
+                {{ index }} {{ item }} iterate over array with index
+            </li>
+            <li v-for="story in arrOfObjs" class="list-group-item">
+                {{ story.writer }} {{ story.plot }} iterate over array of objects
+            </li>
+            <li v-for="(value, key, index) in obj" class="list-group-item">
+                {{index}} : {{key}} : {{value}} iterate over object`s property
+            </li>
+        </ul>
+    </div>
+-->
+    <h3>Iteractivity</h3>
     <div>
-
+        <button v-on:click="upVote">
+            Votes {{ votes }}
+        </button>
     </div>
 </div>
 
