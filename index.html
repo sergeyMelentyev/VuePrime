@@ -9,53 +9,88 @@
 <body>
 
 <div id="app">
-<!--
-    <h3>Data binding. {{message}}</h3>
-    <div>
-        <label for="dataBinding">Two way data binding</label>
-        <input type="text" v-model="message" id="dataBinding">
-    </div>
+    <h3>Data binding</h3>
+    <!--
+        <div>
+            <label for="dataBinding">Two way data binding</label>
+            <input type="text" v-model="firstDataSet.message" id="dataBinding">
+        </div>
+        <h3>Directives</h3>
+        <div>
+            <label for="v-show-dir" v-show="firstDataSet.message">v-show, will stay in DOM</label>
+            <textarea id="v-show-dir" v-model="firstDataSet.message"></textarea>
+            <br>
+            <label for="v-if-dir" v-if="firstDataSet.message">v-if, will not remain in DOM</label>
+            <textarea id="v-if-dir" v-model="firstDataSet.message"></textarea>
+            <br>
+            <template v-if="firstDataSet.message">this DOM element will not be shown
+                <p>data inside template tag will be shown according to v-if condition</p>
+            </template>
+            <template v-else>
+                <p>must follow v-if directive</p>
+            </template>
+        </div>
+        <h3>List Rendering</h3>
+        <div class="container-fluid">
+            <ul class="list-group">
+                <li v-for="i in 2" class="list-group-item">
+                    if int is passed, will repeat template {{ i }} time(s)
+                </li>
+                <li v-for="(item, index) in firstDataSet.arr" class="list-group-item">
+                    {{ index }} {{ item }} iterate over array with index
+                </li>
+                <li v-for="story in firstDataSet.arrOfObjs" class="list-group-item">
+                    {{ story.writer }} {{ story.plot }} iterate over array of objects
+                </li>
+                <li v-for="(value, key, index) in firstDataSet.obj" class="list-group-item">
+                    {{index}} : {{key}} : {{value}} iterate over object`s property
+                </li>
+            </ul>
+        </div>
+-->
 
-    <h3>Directives</h3>
-    <div>
-        <label for="v-show-dir" v-show="message">v-show, elem will remain in DOM</label>
-        <textarea id="v-show-dir" v-model="message"></textarea>
-        <br>
-        <label for="v-if-dir" v-if="message">v-if, elem will not remain in DOM</label>
-        <textarea id="v-if-dir" v-model="message"></textarea>
-        <br>
-        <template v-if="message">this DOM element will not be shown
-            <p>data inside template tag will be shown according to v-if condition</p>
-        </template>
-        <template v-else>
-            <p>must follow v-if directive</p>
-        </template>
+    <h3>Iteractivity</h3>
+    <!--
+    <div class="container">
+        <form class="form-inline" v-on:submit.prevent="calc">
+            <input v-model.number="secondDataSet.a" class="form-control">
+            <select v-model="secondDataSet.operator" class="form-control">
+                <option>+</option>
+                <option>-</option>
+                <option>*</option>
+                <option>/</option>
+            </select>
+            <input v-model.number="secondDataSet.b" class="form-control" v-on:keyup.enter="calc">
+            <button type="submit" v-on:click.prevent="calc">Calculate</button>
+        </form>
+        <div>
+            <p v-show="secondDataSet.a">Result: {{secondDataSet.a}} {{secondDataSet.operator}}
+                {{secondDataSet.b}} = {{secondDataSet.c}} </p>
+        </div>
     </div>
+    -->
 
-    <h3>List Rendering</h3>
+    <h3>Computed properties</h3>
+    <!--
     <div class="container-fluid">
         <ul class="list-group">
-            <li v-for="i in 2" class="list-group-item">
-                if int is passed, will repeat template {{ i }} time(s)
-            </li>
-            <li v-for="(item, index) in arr" class="list-group-item">
-                {{ index }} {{ item }} iterate over array with index
-            </li>
-            <li v-for="story in arrOfObjs" class="list-group-item">
-                {{ story.writer }} {{ story.plot }} iterate over array of objects
-            </li>
-            <li v-for="(value, key, index) in obj" class="list-group-item">
-                {{index}} : {{key}} : {{value}} iterate over object`s property
+            <li v-for="candidate in thirdDataSet.candidates" class="list-group-item">
+                {{ candidate.name }} {{ candidate.votes }}
+                <button v-on:click="mayorVote(candidate)">Vote</button>
             </li>
         </ul>
+        <button class="list-group" v-on:click="clearResults">Clear results</button>
+        <div class="list-group">
+            New mayor is {{ mayor.name }}!
+        </div>
     </div>
 -->
-    <h3>Iteractivity</h3>
-    <div>
-        <button v-on:click="upVote">
-            Votes {{ votes }}
-        </button>
+
+    <h3>Filters</h3>
+    <div class="container-fluid">
+        
     </div>
+
 </div>
 
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
