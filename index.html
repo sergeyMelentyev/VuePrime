@@ -87,12 +87,67 @@
 -->
 
     <h3>Filters</h3>
-    <div class="container-fluid">
-        
+    <!--
+    <div class="container-fluid"> Simple filters
+        <ul class="list-group">
+            <li v-for="story in storiesBy('First writer')" class="list-group-item">
+                {{ story.writer }} said {{ story.plot }}
+            </li>
+        </ul>
+        <p>The most famous are:</p>
+        <ul class="list-group">
+            <li v-for="item in famous" class="list-group-item">
+                {{ item.writer }} with {{ item.plot }}
+            </li>
+        </ul>
+        <p>Dynamic filtering</p>
+        <div class="group-form">
+            <label for="search">What you are looking for?</label>
+            <input type="text" id="search" v-model="fourthDataSet.query" class="form-control">
+        </div>
+        <p>Search results:</p>
+        <ul class="list-group">
+            <li v-for="story in search" class="list-group-item">
+                {{ story.writer }} said {{ story.plot }}
+            </li>
+        </ul>
+        <p>Custom filters</p>
+        <ul class="list-group">
+            <li v-for="hero in fourthDataSet.heroes" class="list-group-item">
+                {{ hero | snitch }}
+            </li>
+        </ul>
     </div>
+    -->
+
+    <h3>Components</h3>
+    <!--
+    <div class="container-fluid">
+        <ul class="list-group">
+            <story v-for="item in fourthDataSet.stories" v-bind:item="item"></story>
+        </ul>
+    </div>
+-->
+
 
 </div>
 
+<!--
+<template id="story-template">
+    <li class="list-group-item">
+        {{item.writer}} said {{item.plot}}.
+        Story votes {{ item.upvotes }}.
+        <button v-show="!item.voted" v-on:click="upvote" class="btn btn-default">
+            Upvote
+        </button>
+        <button v-show="!isFavorite" v-on:click="setFavorite" class="btn btn-default">
+            Favorite
+        </button>
+        <span v-show="isFavorite" class="glyphicon glyphicon-star pull-right"
+              aria-hidden="true"></span>
+    </li>
+</template>
+-->
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="js/hello.js"></script>
 </body>
