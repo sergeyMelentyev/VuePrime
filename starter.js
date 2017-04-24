@@ -70,7 +70,14 @@
             },
             {
                 name: "Fourth Name", last: "Fourth Last Name", secretId: "Fourth ID"
-            }]
+            }],
+        stash: [
+            {name: "One", data: "Data One"},
+            {name: "Two", data: "Data Two"},
+            {name: "Three", data: "Data Three"}]
+    };
+    var customEventsData = {
+        votes: 0
     };
 
     function upVoteMethod() {
@@ -106,6 +113,9 @@
             return story.writer === writer;
         });
     }
+    function customEventsMethodOne(argName) {
+        this.$emit('voted', argName);
+    }       // emit custom event and pass arg
 
     Vue.filter('snitch', function (hero) {
         return hero.secretId + ' is '
@@ -115,19 +125,19 @@
 
     Vue.component('story', {
         template: "#story-template",
-        props: ['item'],
+        props: ['propNameOne'],     // props that will be used in template, should be v-bind with data obj
         methods: {
             upvote: function () {
-                this.item.upvotes += 1;
-                this.item.voted = true;
+                this.propNameOne.upvotes += 1;
+                this.propNameOne.voted = true;
             },
             setFavorite: function () {
-                fourthDataSet.favorite = this.item;
+                fourthDataSet.favorite = this.propNameOne;
             }
         },
         computed: {
             isFavorite: function () {
-                return this.item == fourthDataSet.favorite;
+                return this.propNameOne == fourthDataSet.favorite;
             }
         }
     });
@@ -138,14 +148,16 @@
             firstDataSet: firstDataSet,
             secondDataSet: secondDataSet,
             thirdDataSet: thirdDataSet,
-            fourthDataSet: fourthDataSet
+            fourthDataSet: fourthDataSet,
+            customEventsData: customEventsData
         },
         methods: {
             upVote: upVoteMethod,
             calc: calc,
             mayorVote: mayorVote,
             clearResults: clearResults,
-            storiesBy: storiesBy
+            storiesBy: storiesBy,
+            customEventsMethodOne: customEventsMethodOne
         },
         computed: {
             mayor: function () {
@@ -164,8 +176,20 @@
                 return this.fourthDataSet.stories.filter(function (item) {
                     return item.plot.includes(query);
                 });
-            }
-        }
+            },
+
+        },
+        created: function () {
+            this.$on('voted', function (argName) {
+                this.customEventsData.votes++;
+            });     // register for the custom event
+        },       // lifecycle hook, called synchronously after the instance is created
+        beforeMount: function () {
+            // logic
+        },      // lifecycle hook, called right before the mounting begins
+        beforeUpdate: function () {
+            // logic
+        }       // lifecycle hook, called each time when the data changes
     });
 
 })();
