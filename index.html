@@ -8,8 +8,8 @@
 </head>
 <body>
 
-<div id="app">
-    <h3>Data binding</h3>
+<div id="app" style="display: none">
+    <h5>Data binding</h5>
     <!--
         <div>
             <label for="dataBinding">Two way data binding</label>
@@ -49,7 +49,7 @@
         </div>
 -->
 
-    <h3>Iteractivity</h3>
+    <h5>Iteractivity</h5>
     <!--
     <div class="container">
         <form class="form-inline" v-on:submit.prevent="calc">
@@ -70,7 +70,7 @@
     </div>
     -->
 
-    <h3>Computed properties</h3>
+    <h5>Computed properties</h5>
     <!--
     <div class="container-fluid">
         <ul class="list-group">
@@ -86,7 +86,7 @@
     </div>
 -->
 
-    <h3>Filters</h3>
+    <h5>Filters</h5>
     <!--
     <div class="container-fluid"> Simple filters
         <ul class="list-group">
@@ -120,24 +120,29 @@
     </div>
     -->
 
-    <h3>Components</h3>
+    <h5>Components</h5>
     <!--
     <div class="container-fluid">
         <ul class="list-group">
-            <story v-for="item in fourthDataSet.stories" v-bind:item="item"></story>
+            <story v-for="item in fourthDataSet.stories" v-bind:prop-name-one="item"></story>
         </ul>
     </div>
 -->
 
-
+    <h5>Custom Events</h5>
+    <!--
+    <div class="container-fluid">
+        <p> {{ customEventsData.votes }} </p>
+    </div>
+    <button class="btn btn-primary" v-on:click="customEventsMethodOne('argName')">Vote</button>
+    -->
 </div>
-
 <!--
 <template id="story-template">
     <li class="list-group-item">
-        {{item.writer}} said {{item.plot}}.
-        Story votes {{ item.upvotes }}.
-        <button v-show="!item.voted" v-on:click="upvote" class="btn btn-default">
+        {{propNameOne.writer}} said {{propNameOne.plot}}.
+        Story votes {{ propNameOne.upvotes }}.
+        <button v-show="!propNameOne.voted" v-on:click="upvote" class="btn btn-default">
             Upvote
         </button>
         <button v-show="!isFavorite" v-on:click="setFavorite" class="btn btn-default">
@@ -148,7 +153,30 @@
     </li>
 </template>
 -->
+
+<div id="app2">
+    <h5>Custom Events</h5>
+    <div class="container-fluid">
+        <p> {{votes}} </p>
+        <div class="row">
+            <food v-on:voted="countVote" name="First"></food>
+            <food v-on:voted="countVote" name="Second"></food>
+            <food v-on:voted="countVote" name="Third"></food>
+        </div>
+    </div>
+</div>
+<template id="food">
+    <div class="text-center coll-lg-4">
+        <p>
+            {{ votes }}
+        </p>
+        <button class="btn btn-default" v-on:click="vote"> {{name}}</button>
+    </div>
+</template>
+
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="js/hello.js"></script>
+<!--<script src="js/hello.js"></script>-->
+<script src="js/events.js"></script>
 </body>
+
 </html>
