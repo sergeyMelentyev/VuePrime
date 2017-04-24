@@ -135,42 +135,49 @@
         <p> {{ customEventsData.votes }} </p>
     </div>
     <button class="btn btn-primary" v-on:click="customEventsMethodOne('argName')">Vote</button>
+
+    <template id="story-template">
+        <li class="list-group-item">
+            {{propNameOne.writer}} said {{propNameOne.plot}}.
+            Story votes {{ propNameOne.upvotes }}.
+            <button v-show="!propNameOne.voted" v-on:click="upvote" class="btn btn-default">
+                Upvote
+            </button>
+            <button v-show="!isFavorite" v-on:click="setFavorite" class="btn btn-default">
+                Favorite
+            </button>
+            <span v-show="isFavorite" class="glyphicon glyphicon-star pull-right"
+                  aria-hidden="true"></span>
+        </li>
+    </template>
     -->
 </div>
-<!--
-<template id="story-template">
-    <li class="list-group-item">
-        {{propNameOne.writer}} said {{propNameOne.plot}}.
-        Story votes {{ propNameOne.upvotes }}.
-        <button v-show="!propNameOne.voted" v-on:click="upvote" class="btn btn-default">
-            Upvote
-        </button>
-        <button v-show="!isFavorite" v-on:click="setFavorite" class="btn btn-default">
-            Favorite
-        </button>
-        <span v-show="isFavorite" class="glyphicon glyphicon-star pull-right"
-              aria-hidden="true"></span>
-    </li>
-</template>
--->
 
 <div id="app2">
     <h5>Custom Events</h5>
     <div class="container-fluid">
-        <p> {{votes}} </p>
+        <p> {{votes.count}} </p>
+        <button class="btn btn-default" v-on:click="reset">Reset</button>
         <div class="row">
-            <food v-on:voted="countVote" name="First"></food>
-            <food v-on:voted="countVote" name="Second"></food>
-            <food v-on:voted="countVote" name="Third"></food>
+            <food name="First"></food>
+            <food name="Second"></food>
+            <food name="Third"></food>
         </div>
+        <p>Log:</p>
+        <ul class="list-group">
+            <li class="list-group-item" v-for="vote in votes.log">
+                {{ vote }}
+            </li>
+        </ul>
     </div>
 </div>
+
 <template id="food">
     <div class="text-center coll-lg-4">
         <p>
             {{ votes }}
         </p>
-        <button class="btn btn-default" v-on:click="vote"> {{name}}</button>
+        <button class="btn btn-default" v-on:click="vote"> {{name}} </button>
     </div>
 </template>
 
