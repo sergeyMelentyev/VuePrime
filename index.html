@@ -189,6 +189,10 @@
 
 <div id="app4">
     <h5>API</h5>
+    <div class="pagination">
+        <button v-on:click="fetchData(pagination.prev_page_url)">Previous</button>
+        <button v-on:click="fetchData(pagination.next_page_url)">Next</button>
+    </div>
     <div class="container-fluid">
         <ul class="list-group">
             <phone v-for="item in phones" v-bind:item="item"></phone>
@@ -198,9 +202,10 @@
 <template id="template-item-raw">
     <div class="list-group-item">
         <li>
-            {{ item.name }}
+            {{ item.name }}. Editing {{ item.editing }}.
         </li>
         <button class="btn btn-default" v-on:click="deletePhone(item)">DELETE</button>
+        <button class="btn btn-default" v-on:click="editMode(item)">EDIT</button>
     </div>
 </template>
 
