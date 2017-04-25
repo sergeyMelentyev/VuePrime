@@ -152,26 +152,24 @@
     </template>
     -->
 </div>
-
-<div id="app2">
+<div id="app2" style="display: none">
     <h5>Custom Events</h5>
-    <div class="container-fluid">
-        <p> {{votes.count}} </p>
-        <button class="btn btn-default" v-on:click="reset">Reset</button>
-        <div class="row">
-            <food name="First"></food>
-            <food name="Second"></food>
-            <food name="Third"></food>
-        </div>
-        <p>Log:</p>
-        <ul class="list-group">
-            <li class="list-group-item" v-for="vote in votes.log">
-                {{ vote }}
-            </li>
-        </ul>
+    <!--
+<div class="container-fluid">
+    <p> {{votes.count}} </p>
+    <button class="btn btn-default" v-on:click="reset">Reset</button>
+    <div class="row">
+        <food name="First"></food>
+        <food name="Second"></food>
+        <food name="Third"></food>
     </div>
+    <p>Log:</p>
+    <ul class="list-group">
+        <li class="list-group-item" v-for="vote in votes.log">
+            {{ vote }}
+        </li>
+    </ul>
 </div>
-
 <template id="food">
     <div class="text-center coll-lg-4">
         <p>
@@ -180,10 +178,37 @@
         <button class="btn btn-default" v-on:click="vote"> {{name}} </button>
     </div>
 </template>
+-->
+</div>
+<div id="app3" style="display: none">
+    <h5 v-bind:class="elClasses">Class Binding</h5>
+    <!--
+    <div v-bind:style="[styleOne, styleTwo]"></div>
+    -->
+</div>
+
+<div id="app4">
+    <h5>API</h5>
+    <div class="container-fluid">
+        <ul class="list-group">
+            <phone v-for="item in phones" v-bind:item="item"></phone>
+        </ul>
+    </div>
+</div>
+<template id="template-item-raw">
+    <div class="list-group-item">
+        <li>
+            {{ item.name }}
+        </li>
+        <button class="btn btn-default" v-on:click="deletePhone(item)">DELETE</button>
+    </div>
+</template>
 
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-resource@1.3.1/dist/vue-resource.min.js"></script>
+<script src="js/api.js"></script>
 <!--<script src="js/hello.js"></script>-->
-<script src="js/events.js"></script>
+<!--<script src="js/events.js"></script>-->
+<!--<script src="js/classbind.js"></script>-->
 </body>
-
 </html>
