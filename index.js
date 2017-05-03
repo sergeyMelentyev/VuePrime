@@ -60,7 +60,93 @@
     }
 })(window);
 
+(function(classBinding){
+	// <div class="static" v-bind:class="classObject"></div>
+	// <div class="static active text-danger"></div>
+	export default {
+		data: function () {
+			return {
+				isActive: true,
+				error: true
+			};
+		},
+		computed: {
+			classObject: function () {
+				return {
+					active: this.isActive && !this.error,
+					'text-danger': this.error && this.error.type === 'fatal',
+				}
+			}
+		}
+	}
 
+	// <div v-bind:class="[activeClass, errorClass]">
+	export default {
+		data: function () {
+			return {
+				activeClass: 'active',
+  				errorClass: 'text-danger'
+			};
+		}
+	}
+})(window);
+
+(function(conditionals){
+	/* <template v-if="loginType === 'username'">		// will not render if starting condion is false
+		<label>Username</label>
+		<input placeholder="Enter your username">
+	</template>
+	<template v-else>
+		<label>Email</label>
+		<input placeholder="Enter your email address">
+	</template> */
+	export default {
+        data: function () {
+            return {
+                loginType: 'username'
+            };
+        }
+    }
+})(window);
+
+(function(listRendering){
+	// <div v-for="item of items"></div>			// iterate over array
+	// <div v-for="item in items"></div>			// the same as above
+
+	// <li v-for="value in object"></li>			// iterate over object values
+	// <div v-for="(value, key) in object"></div>	// iterate over object key and value
+	export default {
+        data: function () {
+            return {
+            	items: ['John', 'Doe', 30],
+                object: {
+			      firstName: 'John',
+			      lastName: 'Doe',
+			      age: 30
+			    }
+            };
+        }
+    }
+
+    // push, pop, shift, unshift, splice, sort, reverse.	mutation methods
+    // filter, concat, slice.			// not mutation methods, return a new array
+
+	// <li v-for="n in evenNumbers">{{ n }}</li>
+	export default {
+        data: function () {
+            return {
+                numbers: [1,2,3,4,5,6,7,8,9,10]
+            };
+        },
+        computed: {
+            even: function () {
+                return this.numbers.filter(function (number) {
+                    return number % 2 === 0;
+                });
+            }
+        }
+    }
+})(window);
 
 
 
