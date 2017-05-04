@@ -9,7 +9,7 @@
 		}
 	});
 	// {{ value | capitalize }}			// use case inside vue template
-})(window);
+})();
 
 (function(computedProps){
 	var vm = new Vue({
@@ -23,7 +23,7 @@
 			}
 		}
 	});
-})(window);
+})();
 
 (function(watchedPropsWithAsyncCall){
 	// <input v-model="question"> <p> {{ answer }} </p>
@@ -58,7 +58,7 @@
             }, 1000)
         }
     }
-})(window);
+})();
 
 (function(classBinding){
 	// <div class="static" v-bind:class="classObject"></div>
@@ -89,7 +89,7 @@
 			};
 		}
 	}
-})(window);
+})();
 
 (function(conditionals){
 	/* <template v-if="loginType === 'username'">		// will not render if starting condion is false
@@ -107,7 +107,7 @@
             };
         }
     }
-})(window);
+})();
 
 (function(listRendering){
 	// <div v-for="item of items"></div>			// iterate over array
@@ -146,7 +146,7 @@
             }
         }
     }
-})(window);
+})();
 
 (function(events){
 	// <a v-on:click.stop.prevent="doThat"></a>		// event modifiers .capture .self .once
@@ -203,7 +203,7 @@
     var bus = new Vue();
 	bus.$emit('id-selected', 1)		// first component method
 	bus.$on('id-selected', function (id) { });	// second component created hook
-})(window);
+})();
 
 (function(forms){
 	// <input v-bind:value="something" v-on:input="something = $event.target.value">
@@ -228,7 +228,7 @@
             };
         }
     }
-})(window);
+})();
 
 (function(components){
 	// <custom> simple component with inline template </custom>
@@ -271,11 +271,61 @@
             };
         }
     }
-})(window);
+})();
 
 (function(slots){
-	
-})(window);
+	// Named Slots
+	/*<app-layout>
+		<h4 slot="header">I am a slot header</h4>
+		<div slot="main">A paragraph for the main content</div>
+		<div slot="footer">Here's some contact info</div>
+	</app-layout>*/
+	Vue.component('app-layout', {
+        template: '<div>' +
+        '<header> <slot name="header"></slot> </header>' +
+        '<main> <slot name="main"></slot> </main>' +
+        '<footer> <slot name="footer"></slot> </footer>' +
+        '</div>'
+    });
+
+    // Scoped Slots
+	/*<my-list v-bind:items="items">
+		<template slot="item" scope="props">
+			<li>{{ props.text }}</li>
+		</template>
+	</my-list>*/
+	Vue.component('my-list', {
+        props: ['items'],
+        template: '<ul>' +
+        '<slot name="item" v-for="item in items" v-bind:text="item.text"></slot>' +
+        '</ul>'
+    });
+    export default {
+        name: 'app',
+        data: function () {
+            return {
+                items: [{text: 'a'}, {text: 'b'}, {text: 'c'}]
+            };
+        }
+    }
+
+    // Dynamic Components with keep-alive in order to save component in mem
+    // <keep-alive><comp v-bind:is="currentView"></comp></keep-alive>
+    export default {
+        name: 'app',
+        data: function () {
+            return {
+                currentView: 'home'
+            };
+        },
+        components: {
+            home: { template: '<div>Home Element</div>' },
+            posts: { template: '<div>Posts Element</div>' },
+            archive: { template: '<div>Archive Element</div>' }
+        }
+    }
+
+})();
 
 
 
@@ -288,4 +338,4 @@
 
 (function(){
 	
-})(window);
+})();
