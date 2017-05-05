@@ -10,7 +10,6 @@
 	});
 	// {{ value | capitalize }}			// use case inside vue template
 })();
-
 (function(computedProps){
 	var vm = new Vue({
 		el: '#example',
@@ -24,7 +23,6 @@
 		}
 	});
 })();
-
 (function(watchedPropsWithAsyncCall){
 	// <input v-model="question"> <p> {{ answer }} </p>
 	export default {
@@ -59,7 +57,6 @@
         }
     }
 })();
-
 (function(classBinding){
 	// <div class="static" v-bind:class="classObject"></div>
 	// <div class="static active text-danger"></div>
@@ -90,7 +87,6 @@
 		}
 	}
 })();
-
 (function(conditionals){
 	/* <template v-if="loginType === 'username'">		// will not render if starting condion is false
 		<label>Username</label>
@@ -108,7 +104,6 @@
         }
     }
 })();
-
 (function(listRendering){
 	// <div v-for="item of items"></div>			// iterate over array
 	// <div v-for="item in items"></div>			// the same as above
@@ -147,7 +142,6 @@
         }
     }
 })();
-
 (function(events){
 	// <a v-on:click.stop.prevent="doThat"></a>		// event modifiers .capture .self .once
 	// <input v-on:keyup.13="submit">		// only call vm.submit() when the keyCode is 13
@@ -204,7 +198,6 @@
 	bus.$emit('id-selected', 1)		// first component method
 	bus.$on('id-selected', function (id) { });	// second component created hook
 })();
-
 (function(forms){
 	// <input v-bind:value="something" v-on:input="something = $event.target.value">
 	// <input v-model="something">			// the same as above
@@ -229,25 +222,21 @@
         }
     }
 })();
-
 (function(components){
 	// <custom> simple component with inline template </custom>
     Vue.component('custom', {
-        template: '<button v-on:click="addOne"> {{counter}} </button>',
-        methods: {
-            addOne: function () {
-                ++this.counter;
-            }
-        },
+        template: '<button v-on:click="addOne"> {{ counter }} </button>',
         data: function () {
             return {
                 counter: 0
             }
+        },
+        methods: {
+            addOne: function () {
+                ++this.counter;
+            }
         }
     });
-    export default {
-        name: 'app'
-    }
 
     // Dynamic Props
     // v-bind dynamically bind child props to parent data
@@ -255,13 +244,13 @@
     // <input v-model="parent">
     // <child v-bind:childProp="parent"></child>
     Vue.component('child', {
+    	template: '<p> Data from parent: {{ finalVal }} </p>',
         props: ['childProp'],
         computed: {
             finalVal: function () {
                 return this.childProp.toUpperCase();
             }
-        },
-        template: '<p> Data from parent: {{finalVal}} </p>'
+        }
     });
     export default {
         name: 'app',
@@ -272,9 +261,8 @@
         }
     }
 })();
-
 (function(slots){
-	// Named Slots
+	// NAMED SLOTS INLINE TEMPLATE
 	/*<app-layout>
 		<h4 slot="header">I am a slot header</h4>
 		<div slot="main">A paragraph for the main content</div>
@@ -288,29 +276,67 @@
         '</div>'
     });
 
-    // Scoped Slots
-	/*<my-list v-bind:items="items">
-		<template slot="item" scope="props">
-			<li>{{ props.text }}</li>
-		</template>
-	</my-list>*/
-	Vue.component('my-list', {
-        props: ['items'],
-        template: '<ul>' +
-        '<slot name="item" v-for="item in items" v-bind:text="item.text"></slot>' +
-        '</ul>'
-    });
+	// NAMED SLOTS IMPORT TEMPLATE
+	/* <template>
+	    <div id="custom">
+	        <slot name="header"></slot>
+	        <slot name="main"></slot>
+	        <div name="data" v-for="item in childData"> {{item}} </div>
+	    </div>
+	</template>*/
+	export default { name: 'custom', props: ['childData'] }
+
+	/*<template>
+	    <div id="app">
+	        <custom v-bind:childData="values">
+	            <h4 slot="header">Component Header</h4>
+	            <main slot="main">Component Body</main>
+	        </custom>
+	    </div>
+	</template>*/
+	import Custom from './components/Custom.vue';
     export default {
         name: 'app',
         data: function () {
-            return {
-                items: [{text: 'a'}, {text: 'b'}, {text: 'c'}]
-            };
-        }
+            return { values: ['Data', 'from', 'server'] };
+        },
+        components: { Custom }
     }
 
-    // Dynamic Components with keep-alive in order to save component in mem
-    // <keep-alive><comp v-bind:is="currentView"></comp></keep-alive>
+    // SCOPED SLOTS IMPORT TEMPLATE
+    /*<template>
+	    <div id="custom">
+	        <slot name="header"></slot>
+	        <ul>
+	            <slot name="item" v-for="item in childProps" v-bind:text="item.text"></slot>
+	        </ul>
+	    </div>
+	</template>*/
+    import Vue from 'vue';
+    export default { name: 'custom', props: ['childProps'] };
+
+    /*<template>
+	    <div id="app">
+	        <custom v-bind:childProps="parentData">
+	            <h4 slot="header">Component Header</h4>
+	            <template slot="item" scope="props">
+	                <li>{{ props.text }}</li>
+	            </template>
+	        </custom>
+	    </div>
+	</template>*/
+    import Custom from './components/Custom.vue';
+    export default {
+        name: 'app',
+        data: function () {
+            return { parentData: [{text: 'a'}, {text: 'b'}, {text: 'c'}] };
+        },
+        components: { Custom }
+    }
+})();
+(function(dynamicComponents){
+	// Dynamic Components with 'keep-alive' in order to save component in ram
+    // <keep-alive><component v-bind:is="currentView"></component></keep-alive>
     export default {
         name: 'app',
         data: function () {
@@ -323,8 +349,7 @@
             posts: { template: '<div>Posts Element</div>' },
             archive: { template: '<div>Archive Element</div>' }
         }
-    }
-
+    }	
 })();
 
 
