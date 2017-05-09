@@ -1,3 +1,12 @@
+(function(instance){
+    // <div ref="yourName"></div>
+    // target html elem, not reactive, will not be added to the vue template
+    // and will be lost after new render
+    this.$refs.yourName
+
+    var vm = new Vue({ el: '#app' });   // the same as
+    vm.$mount('#app');      // setup vue obj, execute code, mount to elem after it is exist
+})();
 (function(filters){
 	new Vue({
 		filters: {
@@ -9,6 +18,26 @@
 		}
 	});
 	// {{ value | capitalize }}			// use case inside vue template
+})();
+(function(propValidation){
+    export default {
+        props: {
+            propOne: String,
+            propTwo: [String, Array],
+            propThree: {
+                type: String,
+                required: true
+            },
+            propFour: {
+                type: Object,
+                default: function() {
+                    return {
+                        key: 'value'
+                    };
+                }
+            }
+        }
+    }
 })();
 (function(computedProps){
 	var vm = new Vue({
@@ -88,7 +117,7 @@
 	}
 })();
 (function(conditionals){
-	/* <template v-if="loginType === 'username'">		// will not render if starting condion is false
+	/* <template v-if="loginType === 'username'">  // will not render if condition is false
 		<label>Username</label>
 		<input placeholder="Enter your username">
 	</template>
@@ -160,10 +189,11 @@
         }
     }
 
-    // Parent-Child Communication
+    // parent-child communication
     // v-on must use to listen to events emitted by children
     // <div> Total is {{total}} </div>
     // <button-counter v-on:eventNameFromChild="parentMethodName"></button-counter>
+    // <button-counter v-on:eventNameFromChild="total = $event"></button-counter>
     Vue.component('button-counter', {
         data: function () {
             return {
@@ -175,6 +205,7 @@
             childMethodName: function () {
                 ++this.counter;
                 this.$emit('eventNameFromChild');
+                this.$emit('eventNameFromChild', data);
             }
         }
     });
@@ -193,10 +224,19 @@
         }
     }
 
-    // Non Parent-Child Communication
-    var bus = new Vue();
-	bus.$emit('id-selected', 1)		// first component method
-	bus.$on('id-selected', function (id) { });	// second component created hook
+    // non parent-child communication
+    export const bus = new Vue();
+
+    import { bus } from './main';   // emittter
+	bus.$emit('id-selected', data);
+
+    import { bus } from './main';   // listener
+    export default {
+        name: 'app',
+        created: function() {
+            bus.$on('id-selected', function (data) { /* logic */ });
+        }
+    }
 })();
 (function(forms){
 	// <input v-bind:value="something" v-on:input="something = $event.target.value">
@@ -223,7 +263,7 @@
     }
 })();
 (function(components){
-	// <custom> simple component with inline template </custom>
+	// global component with inline template
     Vue.component('custom', {
         template: '<button v-on:click="addOne"> {{ counter }} </button>',
         data: function () {
@@ -238,11 +278,42 @@
         }
     });
 
-    // Dynamic Props
+    // local component with inline template
+    var cmp = {
+        template: '<button v-on:click="addOne"> {{ counter }} </button>',
+        data: function () {
+            return {
+                counter: 0
+            }
+        },
+        methods: {
+            addOne: function () {
+                ++this.counter;
+            }
+        }
+    };
+    export default {
+        name: 'app',
+        components: {
+            custom: cmp
+        }
+    }
+
+    // global component from external .vue source file
+    // <template><div>...</div></template>
+    export default {
+        data: function () { return { 'data' }; }
+    }
+    //use component <template><custom>...</custom></template>
+    import Custom from './Custom.vue';
+    Vue.component('custom', Custom);
+    new Vue({
+        el: 'app',
+        render: h => h(App);
+    });
+
     // v-bind dynamically bind child props to parent data
-    
-    // <input v-model="parent">
-    // <child v-bind:childProp="parent"></child>
+    // <input v-model="parent"><child v-bind:childProp="parent"></child>
     Vue.component('child', {
     	template: '<p> Data from parent: {{ finalVal }} </p>',
         props: ['childProp'],
@@ -254,11 +325,7 @@
     });
     export default {
         name: 'app',
-        data: function () {
-            return {
-                parent: ''
-            };
-        }
+        data: function () { return { parent: '' }; }
     }
 })();
 (function(slots){
@@ -333,6 +400,38 @@
         },
         components: { Custom }
     }
+
+    /*
+        <template class="SlotTemplate">
+            <div class="container-fluid">
+                <slot name="headerFirst"></slot>
+                <slot name="headerSecond"></slot>
+            </div>
+        </template>
+
+        <template class="ContentHeader">
+          <div class="container-fluid">
+            <h4>This is the first part of the header</h4>
+            <div>This is the second part of the header</div>
+          </div>
+        </template>
+
+        <template class="App">
+          <div id="app">
+            <slot-template><content-header slot="headerFirst"></content-header></slot-template>
+          </div>
+        </template> */
+
+          import SlotTemplate from './components/SlotTemplate.vue';
+          import ContentHeader from './components/ContentHeader.vue';
+
+          export default {
+            name: 'app',
+            components: {
+              SlotTemplate,
+              ContentHeader
+            }
+          }
 })();
 (function(dynamicComponents){
 	// Dynamic Components with 'keep-alive' in order to save component in ram
@@ -351,16 +450,45 @@
         }
     }	
 })();
+(function(customDirectives){
+    // <input v-focus></input>
+    Vue.directive('focus', {
+        inserted: function (el) { el.focus() }  // 'el' element the directive is bound to
+    });
+    
+    // <div v-demo="{ color: 'white', text: 'hello' }"></div>
+    Vue.directive('demo', function (el, binding) {
+      console.log(binding.value.color)      // => "white"
+      console.log(binding.value.text)       // => "hello"
+    })
+})();
+(function(mixins){
+    // distribute reusable functionalities for vue components
+    export const myMixin = {
+        created: function () {
+            this.hello();
+        },
+        methods: {
+            hello: function () {
+                // logic here
+            }
+        }
+    };
 
-
-
-
-
-
-
-
-
-
+    import { myMixin } from './myMixin';
+    export default {
+        name: 'app',
+        mixins: [myMixin]
+    }
+})();
+(function(plugins){
+    // add global-level functionality to vue globaly
+    "use strict";
+})();
+(function(vuex){
+    import Vuex from 'vuex';
+    Vue.use(Vuex);
+})();
 (function(){
 	
 })();
