@@ -486,8 +486,77 @@
     "use strict";
 })();
 (function(vuex){
-    import Vuex from 'vuex';
-    Vue.use(Vuex);
+	// vuex.js config file
+    import Vue from 'vue';
+	import Vuex from 'vuex';
+	Vue.use(Vuex);
+	export default new Vuex.Store({
+	    state: {
+	        count: 0,
+	        todos: [
+	            { id: 1, text: 'text one', done: true},
+	            { id: 2, text: 'text two', done: false}
+	        ]
+	    },
+	    getters: {
+	        doneTodos: function(state) {
+	            return state.todos.filter(function (todo) {
+	                return todo.done;
+	            });
+	        }
+	    },
+	    mutations: {
+	        increment(state, payload) {
+	            state.count += payload.amount;
+	        },
+	        decrement(state, payload) {
+	            state.count -= payload.amount;
+	        }
+	    },       // must be synchronous
+	    actions: {
+
+	    }       //  can perform asynchronous operations
+	});
+
+	// main.js import router from './router';
+	import store from './vuex';
+	new Vue({
+	    el: '#app',
+	    store,
+	    template: '<app></app>',
+	    components: { App }
+	});
+
+	// app.vue component file
+	/*<template>
+	    <div id="app">
+	        <button v-on:click="increment">+</button>
+	        <button v-on:click="decrement">-</button>
+	        <div v-for="item in doneTodos"> {{item}} </div>
+	    </div>
+	</template>*/
+    export default {
+        computed: {
+            count: function () {
+                return this.$store.state.count;
+            },
+            doneTodos: function () {
+                return this.$store.getters.doneTodos;
+            }
+        },
+        methods: {
+            increment(){
+                this.$store.commit('increment', {
+                    amount: 5
+                });
+            },
+            decrement(){
+                this.$store.commit('decrement', {
+                    amount: 5
+                });
+            }
+        }
+    }
 })();
 (function(){
 	
