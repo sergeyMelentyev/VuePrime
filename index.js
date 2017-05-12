@@ -482,8 +482,16 @@
     }
 })();
 (function(plugins){
-    // add global-level functionality to vue globaly
-    "use strict";
+    // plugin index.js
+    export default {
+    install(Vue) {
+        Vue.popup = Vue.prototype.$popup = new Vue();
+    }
+
+    // main.js plugin global registration
+    import Popup from './plugins/popup';
+    Vue.use(Popup);
+};
 })();
 (function(vuex){
 	// vuex.js config file
