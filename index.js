@@ -43,15 +43,20 @@
     };
 })();
 (function(filters){
-    new Vue({
-        filters: {
+    // transform data representation, not data itself
+    Vue.filter('capitalize', function(value){
+        // global filter registration
+    });
+
+    export default {
+        filters: {      // local filter registration
             capitalize: function (value) {
                 if (!value) return '';
                 value = value.toString();
                 return value.charAt(0).toUpperCase() + value.slice(1);
             }
         }
-    });
+    }
     // {{ value | capitalize }}         // use case inside vue template
 })();
 (function(propValidation){
@@ -493,7 +498,8 @@
           }
 })();
 (function(mixins){
-    // distribute reusable functionalities for vue components
+    // compose reusable functionality for vue components
+    // mixin load first, component data second with ability to override mixin
     export const myMixin = {
         created: function () {
             this.hello();
@@ -504,12 +510,19 @@
             }
         }
     };
-
+    // new component will have 'hello()' method that fires after it is created
     import { myMixin } from './myMixin';
     export default {
         name: 'app',
         mixins: [myMixin]
     }
+
+    // global mixin registration, will be added to all instances
+    Vue.mixin({
+        created() {
+            // logic here
+        }
+    });
 })();
 (function(plugins){
     // plugin index.js
