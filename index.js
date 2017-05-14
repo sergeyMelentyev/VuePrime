@@ -565,11 +565,15 @@
             }
         },       // must be synchronous
         actions: {
-
-        }       //  can perform asynchronous operations
+            incrementAsync(context) {
+              setTimeout(function () {
+                context.commit('increment', { amount: 5 })
+              }, 2000);
+            }
+        }       // can perform async actions, communicate only with mutations
     });
 
-    // main.js import router from './router';
+    // main.js app config file
     import store from './vuex';
     new Vue({
         el: '#app',
@@ -583,6 +587,7 @@
         <div id="app">
             <button v-on:click="increment">+</button>
             <button v-on:click="decrement">-</button>
+            <button v-on:click="incrementAsync">-</button>
             <div v-for="item in doneTodos"> {{item}} </div>
         </div>
     </template>*/
@@ -605,9 +610,36 @@
                 this.$store.commit('decrement', {
                     amount: 5
                 });
+            },
+            incrementAsync() {
+                this.$store.dispatch('incrementAsync');
             }
         }
     }
+
+    // MODULES
+    // partOne.js module config file 
+    const state = { /* regular state object */ }
+    const getters = { /* regular getter object */ }
+    const mutations = { /* regular mutation object */ }
+    const actions = { /* regular action object */ }
+    export default {
+        state,
+        getters,
+        mutations,
+        actions
+    }
+
+    // main.js app config file
+    import partOne from './partOne.js';
+    new Vue({
+        el: '#app',
+        modules {
+            partOne
+        },
+        template: '<app></app>',
+        components: { App }
+    });
 })();
 (function(){
     
