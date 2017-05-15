@@ -641,6 +641,46 @@
         components: { App }
     });
 })();
-(function(){
-    
+(function(router){
+	// index.js router config file
+    import Router from 'vue-router';
+    Vue.use(Router);
+    const routes = [
+	    {
+	        path: '/',
+	        name: 'index',
+	        components: {
+	            indexBlock: Index,
+	            footerBlock: Footer
+	        }
+	    },
+	    {
+	        path: '/login',
+	        name: 'login',
+	        component: Login
+	    }
+	];
+	export default new Router({
+	    mode: 'history',
+	    base: '/',
+	    routes
+	});
+
+	// vue component file
+	/*<div id="app">
+		<router-view name="indexBlock"></router-view>
+		<router-view name="footerBlock"></router-view>
+		<router-view></router-view>
+		<router-link v-bind:to="{ name: 'login' }">Login</router-link>
+		<router-link to="/">Home</router-link>
+        <button v-on:click="goHome">Home</button>
+	</div>*/
+	export default {
+        methods: {
+            goHome() {
+                this.$router.push('/');
+                this.$router.go(-1);
+            }
+        }
+    }
 })();
