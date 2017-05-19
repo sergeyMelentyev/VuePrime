@@ -1,4 +1,4 @@
-(function(instance){
+(function (instance){
     // <div ref="yourName"></div>
     // target html elem, not reactive, will not be added to the vue template
     // and will be lost after new render
@@ -7,7 +7,7 @@
     var vm = new Vue({ el: '#app' });   // the same as
     vm.$mount('#app');      // setup vue obj, execute code, mount to elem after it is exist
 })();
-(function(directives){
+(function (directives){
     // register global directive
     // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
     Vue.directive('demo', {     
@@ -42,7 +42,7 @@
         }
     };
 })();
-(function(filters){
+(function (filters){
     // transform data representation, not data itself
     Vue.filter('capitalize', function(value){
         // global filter registration
@@ -59,7 +59,7 @@
     }
     // {{ value | capitalize }}         // use case inside vue template
 })();
-(function(propValidation){
+(function (propValidation){
     export default {
         props: {
             propOne: String,
@@ -79,7 +79,7 @@
         }
     }
 })();
-(function(computedProps){
+(function (computedProps){
     var vm = new Vue({
         el: '#example',
         data: {         // not cached properties
@@ -92,7 +92,7 @@
         }
     });
 })();
-(function(classBinding){
+(function (classBinding){
     // <div class="static" v-bind:class="classObject"></div>
     // <div class="static active text-danger"></div>
     export default {
@@ -122,7 +122,7 @@
         }
     }
 })();
-(function(watchedPropsWithAsyncCall){
+(function (watchedPropsWithAsyncCall){
     // <input v-model="question"> <p> {{ answer }} </p>
     export default {
         data: function () {
@@ -156,7 +156,7 @@
         }
     }
 })();
-(function(conditionals){
+(function (conditionals){
     /* <template v-if="loginType === 'username'">  // will not render if condition is false
         <label>Username</label>
         <input placeholder="Enter your username">
@@ -173,7 +173,7 @@
         }
     }
 })();
-(function(listRendering){
+(function (listRendering){
     // <div v-for="item of items"></div>            // iterate over array
     // <div v-for="item in items"></div>            // the same as above
 
@@ -211,7 +211,7 @@
         }
     }
 })();
-(function(events){
+(function (events){
     // <a v-on:click.stop.prevent="doThat"></a>     // event modifiers .capture .self .once
     // <input v-on:keyup.13="submit">       // only call vm.submit() when the keyCode is 13
     // <button v-on:click="send('+', $event)"></button>     // access the original DOM event
@@ -278,7 +278,7 @@
         }
     }
 })();
-(function(forms){
+(function (forms){
     // <input v-bind:value="something" v-on:input="something = $event.target.value">
     // <input v-model.lazy="something">          // the same as above with modifier
     
@@ -302,7 +302,7 @@
         }
     }
 })();
-(function(components){
+(function (components){
     // global component with inline template
     Vue.component('custom', {
         template: '<button v-on:click="addOne"> {{ counter }} </button>',
@@ -392,7 +392,7 @@
         components: { compOne: ComponentOne, compTwo: ComponentTwo }
     }
 })();
-(function(slots){
+(function (slots){
     // NAMED SLOTS INLINE TEMPLATE
     /*<app-layout>
         <h4 slot="header">I am a slot header</h4>
@@ -497,7 +497,7 @@
             }
           }
 })();
-(function(mixins){
+(function (mixins){
     // compose reusable functionality for vue components
     // mixin load first, component data second with ability to override mixin
     export const myMixin = {
@@ -524,7 +524,7 @@
         }
     });
 })();
-(function(plugins){
+(function (plugins){
     // plugin index.js
     export default {
         install(Vue) {
@@ -536,7 +536,7 @@
         Vue.use(Popup);
     };
 })();
-(function(vuex){
+(function (vuex){
     // vuex.js config file
     import Vue from 'vue';
     import Vuex from 'vuex';
@@ -641,7 +641,9 @@
         components: { App }
     });
 })();
-(function(router){
+(function (router){
+	this.$route;		// object contain all current information
+
 	// index.js router config file
     import Router from 'vue-router';
     Vue.use(Router);
