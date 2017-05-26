@@ -128,14 +128,19 @@
         data: function () {
             return {
                 question: '',
-                answer: 'I cannot give you an answer until you ask a question!'
+                answer: 'I cannot give you an answer until you ask a question!',
+                city: {
+                    name: "",
+                    id: ""
+                }
             };
         },
         watch: {
             question: function () {
                 this.answer = 'Waiting until you stop typing...';
                 this.getAnswer();
-            }
+            },
+            'city.name': function() {}
         },
         methods: {
             getAnswer: _.debounce(function () {         // https://lodash.com/docs#debounce
