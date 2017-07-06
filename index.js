@@ -4,21 +4,105 @@ function instance(){
     // and will be lost after new render
     this.$refs.yourName
 
-    var vm = new Vue({ el: '#app' });   // the same as
-    vm.$mount('#app');      // setup vue obj, execute code, mount to elem after it is exist
+    var vm = new Vue({ el: "#app" });   // the same as
+    vm.$mount("#app");      // setup vue obj, execute code, mount to elem after it is exist
 }
+function bind() {
+	// directive "v-bind" can be used for binding any sort of attrs, class, id, src...
+	// <div v-bind:attrName="vue.$data.propName">
+	...data: { key: "value" }...	// <div v-bind:class="key"> => <div class="value">
+}
+function component() {
+	{	// local component with inline template
+		let counter = Vue.component("counter", {
+			template: `
+			<div>
+				<div>Count: {{this.count}}</div>
+				<button v-on:click='increment'>increment</button>
+			</div>
+			`,
+			data() {
+				return { count: 0 };
+			},
+			methods: {
+				increment() { this.count += 1; }
+			}
+		});
+		let app = new Vue({
+			el: "#app",
+			components: { counter }
+		});
+		// usecase: <div id="app"> <counter></counter> </div>
+	}
+	{	// global component with inline template
+	    Vue.component('custom', {
+	        template: '<button v-on:click="addOne"> {{ counter }} </button>',
+	        data: function () {
+	            return {
+	                counter: 0
+	            }
+	        },
+	        methods: {
+	            addOne: function () {
+	                ++this.counter;
+	            }
+	        }
+	    });
+	    let app = new Vue({
+			el: "#app"
+		});
+		// usecase: <div id="app"> <custom></custom> </div>
+	}
+}
+function passDataToComponent() {
+	{	// pass data down to local component with inline template
+		let counter = Vue.component("counter", {
+			template: `
+			<div>
+				<div>Count: {{this.count}}</div>
+				<button v-on:click='increment'>increment</button>
+			</div>
+			`,
+			props: {
+				addNum: {
+					type: Number,
+					default: 1
+				}
+			},
+			data() {
+				return { count: 0 };
+			},
+			methods: {
+				increment() { this.count += this.addNum; }
+			}
+		});
+		let app = new Vue({
+			el: "#app",
+			components: { counter }
+		});
+		// usecase: <counter v-bind:add-num="5"></counter>
+	}
+}
+
+
+
+
+
+
+
+
 function directives(){
     // register global directive
     // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
-    Vue.directive('demo', {     
+    Vue.directive("demo", {     
         bind(el, binding, vnode) {
             // after directive is attached
             // "el" = element the directive is bound to
             // "binding" contain data from passed value, "binding.value.text"
             // "binding.arg" contain passed "argName" value
             // "vnode" = node in a virtual dom
-            if (binding.arg == 'argName') {}
-            if (binding.modifiers['myModifName']) {}
+            if (binding.arg === "argName") {}
+            if (binding.modifiers["myModifName"]) {}
         },
         inserted(el, binding, vnode) {
             // after inserted in paret node
