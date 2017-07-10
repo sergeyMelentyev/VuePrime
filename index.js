@@ -1,6 +1,11 @@
 function instance(){
     var vm = new Vue({ el: "#app" });   // the same as
     vm.$mount("#app");      // setup vue obj, execute code, mount to elem after it is exist
+
+    // target index.html, create template, render template
+    // index.html <div id="app">
+    // prime.vue <template>... <script> export default {...}
+    // main.js import Vue; import Prime; new Vue({ el: "#app", render: (h)=> h(Prime) });
 }
 function lifeCycle() {
 	// https://vuejs.org/v2/guide/instance.html#Lifecycle-Diagram
@@ -87,6 +92,26 @@ function passData() {
 		// <counter v-bind:add-num="5"></counter>
 	}
 }
+function propValidation(){
+	export default {
+		props: {
+			propOne: String,
+			propTwo: [String, Array],
+			propThree: {
+				type: String,
+				required: true
+			},
+			propFour: {
+				type: Object,
+				default: function() {
+					return {
+						key: 'value'
+					};
+				}
+			}
+		}
+	}
+}
 function computedProp() {
 	{	// simple computed property
 		let app = new Vue({
@@ -108,8 +133,9 @@ function targetHtmlEl() {
     this.$refs.yourName
 }
 function generateList() {
-	{	// simple list with "remove" method by item index
-		// <ul v-for="(item,index) in vue.$data.itemsArr">
+	// always provide "key" attr with v-for directive for in-place patch strategy
+	{	// list rendering with "remove" method by item index
+		// <ul v-for="(item,index) in vue.$data.itemsArr" key="index">
 		// <button v-on:click="vue.$methods.remove(index)">
 		...methods: remove(index) { this.itemsArr.splice(index,1) }
 		}
@@ -172,26 +198,6 @@ function filters(){
         }
     }
     // {{ value | capitalize }}         // use case inside vue template
-}
-function propValidation(){
-	export default {
-		props: {
-			propOne: String,
-			propTwo: [String, Array],
-			propThree: {
-				type: String,
-				required: true
-			},
-			propFour: {
-				type: Object,
-				default: function() {
-					return {
-						key: 'value'
-					};
-				}
-			}
-		}
-	}
 }
 function computedProps(){
 	var vm = new Vue({
