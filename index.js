@@ -141,6 +141,67 @@ function generateList() {
 		}
 	}
 }
+function router() {
+    this.$route;        // object contain all current information
+
+    // main app.js config file
+    import Vue, VueRouter, App, Foo, Bar, Baz;   // import vue templates
+    Vue.use(VueRouter);
+    const routes = [                    // define routes
+        { path: "/", name: "index", components: { foo: Foo, bar: Bar } },
+        { path: "/contacts", name: "contacts", component: Baz }
+    ];
+    const router = new VueRouter({ routes });   // create router instance and pass the routes option
+    new Vue({ router });    // create and mount the root instance, inject router with router option
+
+    // main app.vue template file
+    /*
+        <router-link to="/">home</router-link>
+        <router-link to="/contacts">contacts</router-link>
+
+        <router-view name="foo"></router-view>
+        <router-view name="bar"></router-view>
+        <router-view></router-view>
+    */
+
+    // methods
+    this.$router.push('/');
+    this.$router.go(-1);
+
+    // dynamic route matching
+    const routes = [ { path: "/user/:name/post/:id", component: User } ];   // main app.js config file
+    /*<router-link to="/user/sergey/post/123">User</router-link>*/      // main app.vue component
+    data(){ return { user_name: this.$route.params.name, post_id: this.$route.params.id }; }    // custom.vue component
+}
+function mixin(){
+    // compose reusable functionality for vue components
+    // mixin load first, component data second with ability to override mixin
+    export const myMixin = {
+        created: function () {
+            this.hello();
+        },
+        methods: {
+            hello: function () {
+                // logic here
+            }
+        }
+    };
+    // new component will have 'hello()' method that fires after it is created
+    import { myMixin } from './myMixin';
+    export default {
+        name: 'app',
+        mixins: [myMixin]
+    }
+
+    // global mixin registration, will be added to all instances
+    Vue.mixin({
+        created() {
+            // logic here
+        }
+    });
+}
+
+
 
 
 
@@ -393,13 +454,14 @@ function events(){
     export const bus = new Vue();
 
     import { bus } from './main';   // emittter
-    bus.$emit('id-selected', data);
+    bus.$emit('event-name', data);
 
     import { bus } from './main';   // listener
     export default {
     	name: 'app',
     	created: function() {
-    	bus.$on('id-selected', function (data) { /* logic */ });
+    	   bus.$on('event-name', function (data) { /* logic */ });
+        }
     }
 }
 function forms(){
@@ -621,32 +683,6 @@ function components(){
           	}
           }
       }
-      function mixins(){
-    // compose reusable functionality for vue components
-    // mixin load first, component data second with ability to override mixin
-    export const myMixin = {
-    	created: function () {
-    		this.hello();
-    	},
-    	methods: {
-    		hello: function () {
-                // logic here
-            }
-        }
-    };
-    // new component will have 'hello()' method that fires after it is created
-    import { myMixin } from './myMixin';
-    export default {
-    	name: 'app',
-    	mixins: [myMixin]
-    }
-
-    // global mixin registration, will be added to all instances
-    Vue.mixin({
-    	created() {
-            // logic here
-        }
-    });
 }
 function plugins(){
     // plugin index.js
@@ -765,48 +801,3 @@ function vuex(){
     	components: { App }
     });
 }
-function router(){
-	this.$route;		// object contain all current information
-
-	// index.js router config file
-	import Router from 'vue-router';
-	Vue.use(Router);
-	const routes = [
-	{
-		path: '/',
-		name: 'index',
-		components: {
-			indexBlock: Index,
-			footerBlock: Footer
-		}
-	},
-	{
-		path: '/login',
-		name: 'login',
-		component: Login
-	}
-	];
-	export default new Router({
-		mode: 'history',
-		base: '/',
-		routes
-	});
-
-	// vue component file
-	/*<div id="app">
-		<router-view name="indexBlock"></router-view>
-		<router-view name="footerBlock"></router-view>
-		<router-view></router-view>
-		<router-link v-bind:to="{ name: 'login' }">Login</router-link>
-		<router-link to="/">Home</router-link>
-        <button v-on:click="goHome">Home</button>
-        </div>*/
-        export default {
-        	methods: {
-        		goHome() {
-        			this.$router.push('/');
-        			this.$router.go(-1);
-        		}
-        	}
-        }
-    }
