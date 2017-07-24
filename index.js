@@ -21,6 +21,58 @@ function buildInDirective() {
 	// <div v-bind:attrName="vue.$data.propName">
 	...data: { key: "value" }...	// <div v-bind:class="key"> => <div class="value">
 }
+function customDirective(){
+    // register global directive
+    // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
+    Vue.directive("demo", {     
+        bind(el, binding, vnode) {
+            // after directive is attached
+            // "el" = element the directive is bound to
+            // "binding" contain data from passed value, "binding.value.text"
+            // "binding.arg" contain passed "argName" value
+            // "vnode" = node in a virtual dom
+            if (binding.arg === "argName") {}
+                if (binding.modifiers["myModifName"]) {}
+            },
+        inserted(el, binding, vnode) {
+            // after inserted in paret node
+        },
+        update(el, binding, vnode, oldVnode) {
+            // after components updates without children components
+        },
+        componentUpdated(el, binding, vnode, oldVnode) {
+            // after components updates with children components
+        }
+    });
+
+    // register local directive
+    export default {
+        directives: {
+            'demo': {
+                bind(el, binding, vnode) {
+                    // logic here
+                }
+            }
+        }
+    };
+}
+function filter(){
+    // transform data representation, not data itself
+    Vue.filter('capitalize', function(value){
+        // global filter registration
+    });
+
+    export default {
+        filters: {      // local filter registration
+            capitalize: function (value) {
+                if (!value) return '';
+                value = value.toString();
+                return value.charAt(0).toUpperCase() + value.slice(1);
+            }
+        }
+    }
+    // {{ value | capitalize }}         // use case inside vue template
+}
 function component() {
 	{	// local component with inline template
 		let counter = Vue.component("counter", {
@@ -62,6 +114,67 @@ function component() {
 		});
 		// <div id="app"> <custom></custom> </div>
 	}
+    {   // global component with external custom.vue source file
+        /*<template><div>...</div></template>*/     // Custom.vue
+        export default { }
+
+        //use component <custom></custom>
+        import Custom from "./Custom.vue";
+        Vue.component("custom", Custom);
+        new Vue({
+            el: "app",
+            render: h => h(App);
+        });
+    }
+}
+function slot() {
+    {   // named slots
+        /*  <template><div>
+                <slot name="header"></slot>
+                <div name="data" v-for="item in childData"> {{item}} </div>
+            </div></template>  */
+       export default { name: 'custom', props: ['childData'] }
+
+       /* <template><div id="app">
+            <custom v-bind:childData="values">
+                <h4 slot="header"></h4>
+            </custom>
+        </div></template>  */
+        import Custom from './components/Custom.vue';
+        export default {
+            name: "app",
+            data: function () {
+                return { values: ['Data', 'from', 'server'] };
+            },
+            components: { Custom }
+        }
+    }
+    {   // scoped slots 
+        /*  <template><div>
+                <slot name="header"></slot>
+                <ul>
+                    <slot name="item" v-for="item in childProps" v-bind:text="item.text"></slot>
+                </ul>
+            </div></template>  */
+        export default { name: "custom", props: ["childProps"] };
+
+        /*  <template><div>
+                <custom v-bind:childProps="parentData">
+                    <h4 slot="header">Component Header</h4>
+                    <template slot="item" scope="props">
+                        <li>{{ props.text }}</li>
+                    </template>
+                </custom>
+            </div></template> */
+            import Custom from './components/Custom.vue';
+            export default {
+                name: 'app',
+                data: function () {
+                    return { parentData: [{text: 'a'}, {text: 'b'}, {text: 'c'}] };
+                },
+                components: { Custom }
+            }
+    }
 }
 function passData() {
 	{	// pass data down to local inline template component 
@@ -126,13 +239,52 @@ function computedProp() {
 		// <input v-model="vue.$data.prop"><p>{{vue.$computed.prop}}</p>
 	}
 }
+function watchProp(){
+    // <input v-model="question"> <p> {{ answer }} </p>
+    export default {
+        data: function () {
+            return {
+                question: '',
+                answer: 'I cannot give you an answer until you ask a question!',
+                obj: {
+                    key: "",
+                    name: ""
+                }
+            };
+        },
+        watch: {
+            question: function () {
+                this.answer = 'Waiting until you stop typing...';
+                this.getAnswer();
+            },
+            "obj.key": function() { /* logic here*/ }
+        },
+        methods: {
+            getAnswer: _.debounce(function () {         // https://lodash.com/docs#debounce
+                if (this.question.indexOf('?') === -1) {
+                    this.answer = 'Question should contain a question mark';
+                    return;
+                }
+                this.answer = '...thinking...';
+                let vm = this;
+                axios.get('https://yesno.wtf/api')      // https://www.npmjs.com/package/axios
+                .then(function (response) {
+                    vm.answer = response.data.answer;
+                })
+                .catch(function (error) {
+                        // error logic
+                    });
+            }, 1000)
+        }
+    }
+}
 function targetHtmlEl() {
     // <div ref="yourName"></div>
     // target html elem, not reactive, will not be added to the vue template
     // will be lost after new render
     this.$refs.yourName
 }
-function generateList() {
+function listRendering() {
 	// always provide "key" attr with v-for directive for in-place patch strategy
 	{	// list rendering with "remove" method by item index
 		// <ul v-for="(item,index) in vue.$data.itemsArr" key="index">
@@ -141,9 +293,107 @@ function generateList() {
 		}
 	}
 }
-function router() {
-    this.$route;        // object contain all current information
+function formHandling(){
+    // <input v-bind:value="something" v-on:input="something = $event.target.value">
+    
+    /*  <select v-model="selected">
+            <option v-for="option in options" v-bind:value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+        <span>Selected: {{ selected }}</span>*/
+    
+    export default {
+        data: function () {
+            return {
+                selected: 'A',
+                options: [
+                    { text: 'One', value: 'A' },
+                    { text: 'Two', value: 'B' },
+                    { text: 'Three', value: 'C' }
+                ]
+            };
+        }
+    }
+}
+function conditionalRendering(){
+    /*  <template v-if="loginType === 'username'">
+            <label>Username</label>
+            <input placeholder="Enter your username">
+        </template>
+        <template v-else>
+            <label>Email</label>
+            <input placeholder="Enter your email address">
+        </template> */
+    export default {
+        data: function () {
+            return {
+                loginType: 'username'
+            };
+        }
+    }
+}
+function classBinding() {
+    // <div class="static" v-bind:class="classObject"></div>
+    export default {
+        data: function () {
+            return {
+                isActive: true,
+                error: true
+            };
+        },
+        computed: {
+            classObject: function () {
+                return {
+                    active: this.isActive && !this.error,
+                    'text-danger': this.error && this.error.type === 'fatal',
+                }
+            }
+        }
+    }
+    // <div v-bind:class="[activeClass, errorClass]">
+    export default {
+        data: function () {
+            return {
+                activeClass: 'active',
+                errorClass: 'text-danger'
+            };
+        }
+    }
+}
+function event(){
+    {   // event modifiers
+        // <a v-on:click.stop.prevent="doThat"></a>
+        // <input v-on:keyup.13="submit">
+        // <button v-on:click="send('+', $event)"></button>     // access the original DOM event
+    }
+    {   // parent-child communication
+        // v-on must be used to listen to events emitted by children
+        // <template v-on:eventNameFromChild="parentMethodName"></template>
+        methods: {
+            childMethodName: function () {
+                this.$emit('eventNameFromChild');
+                this.$emit('eventNameFromChild', data);
+            }
+        }
 
+    }
+    {   // non parent-child communication
+        export const bus = new Vue();
+
+        import { bus } from './main';   // emittter
+        bus.$emit('event-name', data);
+
+        import { bus } from './main';   // listener
+        export default {
+            name: 'app',
+            created: function() {
+               bus.$on('event-name', function (data) { /* logic */ });
+            }
+        }
+    }
+}
+function router() {
     // main app.js config file
     import Vue, VueRouter, App, Foo, Bar, Baz;   // import vue templates
     Vue.use(VueRouter);
@@ -151,9 +401,8 @@ function router() {
         { path: "/", name: "index", components: { foo: Foo, bar: Bar } },
         { path: "/contacts", name: "contacts", component: Baz }
     ];
-    const router = new VueRouter({ routes });   // create router instance and pass the routes option
+    const router = new VueRouter({mode: "history", routes}); // create router instance and pass routes option
     new Vue({ router });    // create and mount the root instance, inject router with router option
-
     // main app.vue template file
     /*
         <router-link to="/">home</router-link>
@@ -164,16 +413,34 @@ function router() {
         <router-view></router-view>
     */
 
-    // methods
-    this.$router.push('/');
-    this.$router.go(-1);
-
     // dynamic route matching
     const routes = [ { path: "/user/:name/post/:id", component: User } ];   // main app.js config file
     /*<router-link to="/user/sergey/post/123">User</router-link>*/      // main app.vue component
-    data(){ return { user_name: this.$route.params.name, post_id: this.$route.params.id }; }    // custom.vue component
+    data(){ return { user_name: this.$route.params.name, post_id: this.$route.params.id }; } // custom.vue component
+
+    // programmatic navigation, access to router instance as $router
+    this.$router.push(location, onComplete?, onAbort?); // navigate to new URL, pushe new entry into history stack
+    router.push("home");    // literal string path
+    router.push({ path: "home" });  // object
+    router.push({ name: "user", params: { userId: 123 }});  // named route
+    this.$router.replace(location, onComplete?, onAbort?); // navigates without pushing a new history entry
+    this.$router.go(n); // indicates by how many steps to go forwards or go backwards in the history stack
+
+    // named routes
+    routes: [ { path: "/user/:userId", name: "user", component: User } ];
+    /*<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>*/
+    this.$router.push({ name: "user", params: { userId: 123 }});
+
+    // named views, several components in one view
+    routes: [ { path: '/', components: { default: Foo, a: Bar } } ];    // main app.js config file
+    /*<router-view class="default"></router-view> <router-view class="named" name="a"></router-view>*/
+
+    // redirect
+    routes: [ { path: "/a", redirect: "/b" } ];
+    routes: [ { path: "/a", redirect: { name: "foo" } } ];  // targeting named route
+    routes: [ { path: "/a", redirect: to => {// func receive target route as arg, return redirect path } } ];
 }
-function mixin(){
+function mixin() {
     // compose reusable functionality for vue components
     // mixin load first, component data second with ability to override mixin
     export const myMixin = {
@@ -200,360 +467,24 @@ function mixin(){
         }
     });
 }
-
-
-
-
-
-
-
-
-function customDirective(){
-    // register global directive
-    // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
-    Vue.directive("demo", {     
-    	bind(el, binding, vnode) {
-            // after directive is attached
-            // "el" = element the directive is bound to
-            // "binding" contain data from passed value, "binding.value.text"
-            // "binding.arg" contain passed "argName" value
-            // "vnode" = node in a virtual dom
-            if (binding.arg === "argName") {}
-            	if (binding.modifiers["myModifName"]) {}
-            },
-        inserted(el, binding, vnode) {
-            // after inserted in paret node
-        },
-        update(el, binding, vnode, oldVnode) {
-            // after components updates without children components
-        },
-        componentUpdated(el, binding, vnode, oldVnode) {
-            // after components updates with children components
-        }
-    });
-
-    // register local directive
+function plugins(){
+    // plugin index.js
     export default {
-    	directives: {
-    		'demo': {
-    			bind(el, binding, vnode) {
-                    // logic here
-                }
-            }
+        install(Vue) {
+            Vue.popup = Vue.prototype.$popup = new Vue();
         }
+
+        // main.js plugin global registration
+        import Popup from './plugins/popup';
+        Vue.use(Popup);
     };
 }
-function filters(){
-    // transform data representation, not data itself
-    Vue.filter('capitalize', function(value){
-        // global filter registration
-    });
 
-    export default {
-        filters: {      // local filter registration
-        	capitalize: function (value) {
-        		if (!value) return '';
-        		value = value.toString();
-        		return value.charAt(0).toUpperCase() + value.slice(1);
-        	}
-        }
-    }
-    // {{ value | capitalize }}         // use case inside vue template
-}
-function computedProps(){
-	var vm = new Vue({
-		el: '#example',
-        data: {         // not cached properties
-        	message: 'Hello'
-        },
-        computed: {         // cached properties, will not reevaluate untile 'message' prop change
-            reversedMessage: function () {      // computed getter
-                return this.message.toUpperCase;        // 'this' points to the vm instance
-            }
-        }
-    });
-}
-function classBinding(){
-    // <div class="static" v-bind:class="classObject"></div>
-    // <div class="static active text-danger"></div>
-    export default {
-    	data: function () {
-    		return {
-    			isActive: true,
-    			error: true
-    		};
-    	},
-    	computed: {
-    		classObject: function () {
-    			return {
-    				active: this.isActive && !this.error,
-    				'text-danger': this.error && this.error.type === 'fatal',
-    			}
-    		}
-    	}
-    }
 
-    // <div v-bind:class="[activeClass, errorClass]">
-    export default {
-    	data: function () {
-    		return {
-    			activeClass: 'active',
-    			errorClass: 'text-danger'
-    		};
-    	}
-    }
-}
-function watchedPropsWithAsyncCall(){
-    // <input v-model="question"> <p> {{ answer }} </p>
-    export default {
-    	data: function () {
-    		return {
-    			question: '',
-    			answer: 'I cannot give you an answer until you ask a question!',
-    			city: {
-    				name: "",
-    				id: ""
-    			}
-    		};
-    	},
-    	watch: {
-    		question: function () {
-    			this.answer = 'Waiting until you stop typing...';
-    			this.getAnswer();
-    		},
-    		'city.name': function() {}
-    	},
-    	methods: {
-            getAnswer: _.debounce(function () {         // https://lodash.com/docs#debounce
-            	if (this.question.indexOf('?') === -1) {
-            		this.answer = 'Question should contain a question mark';
-            		return;
-            	}
-            	this.answer = '...thinking...';
-            	let vm = this;
-                axios.get('https://yesno.wtf/api')      // https://www.npmjs.com/package/axios
-                .then(function (response) {
-                	vm.answer = response.data.answer;
-                })
-                .catch(function (error) {
-                        // error logic
-                    });
-            }, 1000)
-        }
-    }
-}
-function conditionals(){
-    /* <template v-if="loginType === 'username'">
-        <label>Username</label>
-        <input placeholder="Enter your username">
-    </template>
-    <template v-else>
-        <label>Email</label>
-        <input placeholder="Enter your email address">
-        </template> */
-        export default {
-        	data: function () {
-        		return {
-        			loginType: 'username'
-        		};
-        	}
-        }
-    }
-    function listRendering(){
-    // <div v-for="item of items"></div>            // iterate over array
-    // <div v-for="item in items"></div>            // the same as above
 
-    // <li v-for="value in object"></li>            // iterate over object values
-    // <div v-for="(value, key) in object"></div>   // iterate over object key and value
-    export default {
-    	data: function () {
-    		return {
-    			items: ['John', 'Doe', 30],
-    			object: {
-    				firstName: 'John',
-    				lastName: 'Doe',
-    				age: 30
-    			}
-    		};
-    	}
-    }
 
-    // push, pop, shift, unshift, splice, sort, reverse.    mutation methods
-    // filter, concat, slice.           // not mutation methods, return a new array
-
-    // <li v-for="n in even">{{ n }}</li>
-    export default {
-    	data: function () {
-    		return {
-    			numbers: [1,2,3,4,5,6,7,8,9,10]
-    		};
-    	},
-    	computed: {
-    		even: function () {
-    			return this.numbers.filter(function (number) {
-    				return number % 2 === 0;
-    			});
-    		}
-    	}
-    }
-}
-function events(){
-    // <a v-on:click.stop.prevent="doThat"></a>     // event modifiers .capture .self .once
-    // <input v-on:keyup.13="submit">       // only call vm.submit() when the keyCode is 13
-    // <button v-on:click="send('+', $event)"></button>     // access the original DOM event
-    export default {
-    	data: function () {
-    		return {
-    			name: ''
-    		};
-    	},
-    	methods: {
-    		send: function (obj, event) {
-    			this.name = obj;
-    			console.log(this.name + ' ' + event.type);
-    		}
-    	}
-    }
-
-    // parent-child communication
-    // v-on must be used to listen to events emitted by children
-    // <div> Total is {{total}} </div>
-    // <button-counter v-on:eventNameFromChild="parentMethodName"></button-counter>
-    // <button-counter v-on:eventNameFromChild="total = $event"></button-counter>
-    Vue.component('button-counter', {
-    	data: function () {
-    		return {
-    			counter: 0
-    		};
-    	},
-    	template: '<button v-on:click="childMethodName"> {{counter}} </button>',
-    	methods: {
-    		childMethodName: function () {
-    			++this.counter;
-    			this.$emit('eventNameFromChild');
-    			this.$emit('eventNameFromChild', data);
-    		}
-    	}
-    });
-
-    export default {
-    	name: 'app',
-    	data: function () {
-    		return {
-    			total: 0
-    		};
-    	},
-    	methods: {
-    		parentMethodName: function () {
-    			++this.total;
-    		}
-    	}
-    }
-
-    // non parent-child communication
-    export const bus = new Vue();
-
-    import { bus } from './main';   // emittter
-    bus.$emit('event-name', data);
-
-    import { bus } from './main';   // listener
-    export default {
-    	name: 'app',
-    	created: function() {
-    	   bus.$on('event-name', function (data) { /* logic */ });
-        }
-    }
-}
-function forms(){
-    // <input v-bind:value="something" v-on:input="something = $event.target.value">
-    // <input v-model.lazy="something">          // the same as above with modifier
-    
-    /*<select v-model="selected">
-        <option v-for="option in options" v-bind:value="option.value">
-            {{ option.text }}
-        </option>
-    </select>
-    <span>Selected: {{ selected }}</span>*/
-    
-    export default {
-    	data: function () {
-    		return {
-    			selected: 'A',
-    			options: [
-    			{ text: 'One', value: 'A' },
-    			{ text: 'Two', value: 'B' },
-    			{ text: 'Three', value: 'C' }
-    			]
-    		};
-    	}
-    }
-}
 function components(){
-    // global component with inline template
-    Vue.component('custom', {
-    	template: '<button v-on:click="addOne"> {{ counter }} </button>',
-    	data: function () {
-    		return {
-    			counter: 0
-    		}
-    	},
-    	methods: {
-    		addOne: function () {
-    			++this.counter;
-    		}
-    	}
-    });
-
-    // local component with inline template
-    var cmp = {
-    	template: '<button v-on:click="addOne"> {{ counter }} </button>',
-    	data: function () {
-    		return {
-    			counter: 0
-    		}
-    	},
-    	methods: {
-    		addOne: function () {
-    			++this.counter;
-    		}
-    	}
-    };
-    export default {
-    	name: 'app',
-    	components: {
-    		custom: cmp
-    	}
-    }
-
-    // global component from external .vue source file
-    // <template><div>...</div></template>
-    export default {
-    	data: function () { return { 'data' }; }
-    }
-    //use component <template><custom>...</custom></template>
-    import Custom from './Custom.vue';
-    Vue.component('custom', Custom);
-    new Vue({
-    	el: 'app',
-    	render: h => h(App);
-    });
-
-    // v-bind dynamically bind child props to parent data
-    // <input v-model="parent"><child v-bind:childProp="parent"></child>
-    Vue.component('child', {
-    	template: '<p> Data from parent: {{ finalVal }} </p>',
-    	props: ['childProp'],
-    	computed: {
-    		finalVal: function () {
-    			return this.childProp.toUpperCase();
-    		}
-    	}
-    });
-    export default {
-    	name: 'app',
-    	data: function () { return { parent: '' }; }
-    }
-
+    ???
     // DYNAMIC COMPONENT, will be destoyed each time a new one is called
     /*<template> <div><h4>Component one</h4></div> </template>*/
     export default { activated(){}, deactivated(){} }
@@ -568,133 +499,15 @@ function components(){
         <keep-alive><component v-bind:is="selectedComp"></component></keep-alive>
       </div>
       </template>*/
-      import ComponentOne from './components/ComponentOne.vue';
-      import ComponentTwo from './components/ComponentTwo.vue';
-      export default {
-      	name: 'app',
-      	data: function () {
-      		return { selectedComp: 'comp-one' };
-      	},
-      	components: { compOne: ComponentOne, compTwo: ComponentTwo }
-      }
-  }
-  function slots(){
-    // NAMED SLOTS INLINE TEMPLATE
-    /*<app-layout>
-        <h4 slot="header">I am a slot header</h4>
-        <div slot="main">A paragraph for the main content</div>
-        <div slot="footer">Here's some contact info</div>
-        </app-layout>*/
-        Vue.component('app-layout', {
-        	template: '<div>' +
-        	'<header> <slot name="header"></slot> </header>' +
-        	'<main> <slot name="main"></slot> </main>' +
-        	'<footer> <slot name="footer"></slot> </footer>' +
-        	'</div>'
-        });
-
-    // NAMED SLOTS IMPORT TEMPLATE
-    /* <template>
-        <div id="custom">
-            <slot name="header"></slot>
-            <slot name="main"></slot>
-            <div name="data" v-for="item in childData"> {{item}} </div>
-        </div>
-        </template>*/
-        export default { name: 'custom', props: ['childData'] }
-
-    /*<template>
-        <div id="app">
-            <custom v-bind:childData="values">
-                <h4 slot="header">Component Header</h4>
-                <main slot="main">Component Body</main>
-            </custom>
-        </div>
-        </template>*/
-        import Custom from './components/Custom.vue';
-        export default {
-        	name: 'app',
-        	data: function () {
-        		return { values: ['Data', 'from', 'server'] };
-        	},
-        	components: { Custom }
-        }
-
-    // SCOPED SLOTS IMPORT TEMPLATE
-    /*<template>
-        <div id="custom">
-            <slot name="header"></slot>
-            <ul>
-                <slot name="item" v-for="item in childProps" v-bind:text="item.text"></slot>
-            </ul>
-        </div>
-        </template>*/
-        import Vue from 'vue';
-        export default { name: 'custom', props: ['childProps'] };
-
-    /*<template>
-        <div id="app">
-            <custom v-bind:childProps="parentData">
-                <h4 slot="header">Component Header</h4>
-                <template slot="item" scope="props">
-                    <li>{{ props.text }}</li>
-                </template>
-            </custom>
-        </div>
-        </template>*/
-        import Custom from './components/Custom.vue';
-        export default {
-        	name: 'app',
-        	data: function () {
-        		return { parentData: [{text: 'a'}, {text: 'b'}, {text: 'c'}] };
-        	},
-        	components: { Custom }
-        }
-
-    /*
-        <template class="SlotTemplate">
-            <div class="container-fluid">
-                <slot name="headerFirst"></slot>
-                <slot name="headerSecond"></slot>
-            </div>
-        </template>
-
-        <template class="ContentHeader">
-          <div class="container-fluid">
-            <h4>This is the first part of the header</h4>
-            <div>This is the second part of the header</div>
-          </div>
-        </template>
-
-        <template class="App">
-          <div id="app">
-            <slot-template><content-header slot="headerFirst"></content-header></slot-template>
-          </div>
-          </template> */
-
-          import SlotTemplate from './components/SlotTemplate.vue';
-          import ContentHeader from './components/ContentHeader.vue';
-
-          export default {
-          	name: 'app',
-          	components: {
-          		SlotTemplate,
-          		ContentHeader
-          	}
-          }
-      }
-}
-function plugins(){
-    // plugin index.js
+    import ComponentOne from './components/ComponentOne.vue';
+    import ComponentTwo from './components/ComponentTwo.vue';
     export default {
-    	install(Vue) {
-    		Vue.popup = Vue.prototype.$popup = new Vue();
-    	}
-
-        // main.js plugin global registration
-        import Popup from './plugins/popup';
-        Vue.use(Popup);
-    };
+    	name: 'app',
+    	data: function () {
+    		return { selectedComp: 'comp-one' };
+    	},
+    	components: { compOne: ComponentOne, compTwo: ComponentTwo }
+    }
 }
 function vuex(){
     // vuex.js config file
