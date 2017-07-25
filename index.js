@@ -394,51 +394,130 @@ function event(){
     }
 }
 function router() {
-    // main app.js config file
-    import Vue, VueRouter, App, Foo, Bar, Baz;   // import vue templates
-    Vue.use(VueRouter);
-    const routes = [                    // define routes
-        { path: "/", name: "index", components: { foo: Foo, bar: Bar } },
-        { path: "/contacts", name: "contacts", component: Baz }
-    ];
-    const router = new VueRouter({mode: "history", routes}); // create router instance and pass routes option
-    new Vue({ router });    // create and mount the root instance, inject router with router option
-    // main app.vue template file
-    /*
-        <router-link to="/">home</router-link>
-        <router-link to="/contacts">contacts</router-link>
+    {   // router construction options
+        $router;    // router instance
+        $route;     // current active route
+        const RouteConfig = {
+            path: "string",
+            component?: VueComponent,
+            name?: "string",
+            components?: {"nameOne": ComponentOne, "nameTwo": ComponentTwo},
+            redirect?: [{path: "/a", redirect: "/b"}],
+            redirect?: [{path: "/a", redirect: { name: "foo"}}],
+            redirect?: [{path: "/a", redirect: to => { /* func receive target route as arg, return redirect path */ }}],
+            props?: boolean | string | Function,
+            alias?: string | Array<string>,
+            children?: [        // rendered inside "VueComponent" <router-view>
+                { path: "profile", component: UserProfile },    // when /vuecomponent/:id/profile is matched
+                { path: "posts", component: UserPosts }     // when /vuecomponent/:id/posts is matched
+            ],
+            beforeEnter?: (to: Route, from: Route, next: Function) => void 0,
+            meta?: any,
+            caseSensitive?: boolean,        // use case sensitive match (default: false)
+            pathToRegexpOptions?: Object    // path-to-regexp options for compiling regex
+        }
+    }
+    {   // route object
+        // state of current active route, contains parsed info of current URL and route records matched by URL
+        this.$route;    // get route object inside component
+        router.match(location); // return value will be route object
 
-        <router-view name="foo"></router-view>
-        <router-view name="bar"></router-view>
-        <router-view></router-view>
-    */
+        // properties
+        $route.path; // "string" that equals path of current route, always resolved as an absolute path "/foo/bar"
+        $route.params;  // obj contains key/value pairs of dynamic segments and star segments
+        $route.query;   // obj contains key/value pairs of query string, "/foo?user=1" => "$route.query.user == 1"
+        $route.fullPath;    // full resolved URL including query and hash
+        $route.matched; // array containing route records for all nested path segments of the current route
+        $route.name;    // name of the current route
+    }
+    {   // router-link
+        // component for enabling user navigation
+        <router-link to="home">     // value of the "to=" prop will be passed to router.push() internally
+        <router-link v-bind:to="'home'">
+        <router-link :to="{ path: 'home' }">
+        <router-link :to="{ name: 'user', params: { userId: 123 }}">
+        <router-link :to="{ path: 'register', query: { plan: 'private' }}"> // will result in "/register?plan=private"
 
-    // dynamic route matching
-    const routes = [ { path: "/user/:name/post/:id", component: User } ];   // main app.js config file
-    /*<router-link to="/user/sergey/post/123">User</router-link>*/      // main app.vue component
-    data(){ return { user_name: this.$route.params.name, post_id: this.$route.params.id }; } // custom.vue component
+        <router-link :to="{ path: '/abc'}" replace>
 
-    // programmatic navigation, access to router instance as $router
-    this.$router.push(location, onComplete?, onAbort?); // navigate to new URL, pushe new entry into history stack
-    router.push("home");    // literal string path
-    router.push({ path: "home" });  // object
-    router.push({ name: "user", params: { userId: 123 }});  // named route
-    this.$router.replace(location, onComplete?, onAbort?); // navigates without pushing a new history entry
-    this.$router.go(n); // indicates by how many steps to go forwards or go backwards in the history stack
+        <router-link :to="{ path: 'relative/path'}" append>     // appends the relative path to the current path
 
-    // named routes
-    routes: [ { path: "/user/:userId", name: "user", component: User } ];
-    /*<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>*/
-    this.$router.push({ name: "user", params: { userId: 123 }});
+        <router-link to="/foo" tag="li">foo         // render <router-link> as another tag => "<li>foo</li>"
+    }
+    {   // router-view
+        // functional component that renders the matched component for the given path
+        // 
+    }
+    {   // general use
+        // main app.js config file
+        import Vue, VueRouter, App, Foo, Bar, Baz;   // import vue templates
+        Vue.use(VueRouter);
+        const routes = [                    // define routes
+            { path: "/", name: "index", components: { foo: Foo, bar: Bar } },
+            { path: "/contacts", name: "contacts", component: Baz }
+        ];
+        const router = new VueRouter({mode: "history", routes}); // create router instance and pass routes option
+        new Vue({ router });    // create and mount the root instance, inject router with router option
+        
+        // main app.vue template file
+        /*  <router-link to="/">home</router-link>
+            <router-link to="/contacts">contacts</router-link>
+            <router-view name="foo"></router-view>
+            <router-view name="bar"></router-view>
+            <router-view></router-view>  */
+    }
+    {   // dynamic route matching
+        const routes = [ { path: "/user/:name/post/:id", component: User } ];   // main app.js config file
+        /*<router-link to="/user/sergey/post/123">User</router-link>*/      // main app.vue component
+        data(){ return { user_name: this.$route.params.name, post_id: this.$route.params.id }; } // custom.vue component
+    }
+    {   // programmatic navigation, access to router instance as $router
+        this.$router.push(location, onComplete?, onAbort?); // navigate to new URL, pushe new entry into history stack
+        router.push("home"); router.push({ path: "home" }); router.push({ name: "user", params: { userId: 123 }});
+        this.$router.replace(location, onComplete?, onAbort?); // navigates without pushing a new history entry
+        this.$router.go(n); // indicates by how many steps to go forwards or go backwards in the history stack
+        this.$router.back();
+        this.$router.forward();
+    }
+    {   // named routes
+        routes: [ { path: "/user/:userId", name: "user", component: User } ];
+        /*<router-link :to="{ name: 'user', params: { userId: 123 }}">User</router-link>*/
+        this.$router.push({ name: "user", params: { userId: 123 }});
+    }
+    {   // data fetching
+        // navigate and render the incoming component immediately, fetch data in the component created hook
+        <template>
+          <div class="post">
+            <div class="loading" v-if="loading"> Loading... </div>
+            <div v-if="error" class="error"> {{ error }} </div>
+            <div v-if="post" class="content"> <h2>{{ post.title }}</h2> <p>{{ post.body }}</p> </div>
+          </div>
+        </template>
 
-    // named views, several components in one view
-    routes: [ { path: '/', components: { default: Foo, a: Bar } } ];    // main app.js config file
-    /*<router-view class="default"></router-view> <router-view class="named" name="a"></router-view>*/
-
-    // redirect
-    routes: [ { path: "/a", redirect: "/b" } ];
-    routes: [ { path: "/a", redirect: { name: "foo" } } ];  // targeting named route
-    routes: [ { path: "/a", redirect: to => {// func receive target route as arg, return redirect path } } ];
+        export default {
+          data () { return { loading: false, post: null, error: null } },
+          created () {
+            this.fetchData();   // fetch data when view is created and data is already being observed
+          },
+          watch: {
+            '$route': 'fetchData'   // call again the method if the route changes
+          },
+          methods: {
+            fetchData () {
+              this.error = this.post = null;
+              this.loading = true;
+              getPost(this.$route.params.id, (err, post) => {
+                this.loading = false;
+                if (err) {
+                  this.error = err.toString();
+                } else {
+                  this.post = post;
+                }
+              });
+            }
+          }
+        }
+    }
 }
 function mixin() {
     // compose reusable functionality for vue components
