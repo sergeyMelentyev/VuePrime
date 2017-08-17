@@ -204,6 +204,9 @@ function passData() {
 		});
 		// <counter v-bind:add-num="5"></counter>
 	}
+    {   // v-bind several values
+        <container v-bind="{childParamOne: data.papam, childParamTwo: data.papams}">
+    }
 }
 function propValidation(){
 	export default {
@@ -558,7 +561,6 @@ function plugins(){
         Vue.use(Popup);
     };
 }
-
 
 
 
