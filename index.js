@@ -1,4 +1,4 @@
-function instance(){
+function instance() {
     var vm = new Vue({ el: "#app" });   // the same as
     vm.$mount("#app");      // setup vue obj, execute code, mount to elem after it is exist
 
@@ -9,19 +9,22 @@ function instance(){
 }
 function lifeCycle() {
 	// https://vuejs.org/v2/guide/instance.html#Lifecycle-Diagram
-	...created(){}...	// synchronously after the instance is created
-	...mounted(){}...	// after instance has been mounted, "el" is replaced by "vm.$el"
-	...updated(){}...	// after data change causes the virtual DOM to re-rendered
-	...activated(){}...	// when a kept-alive component is activated
-	...beforeDestroy(){}...	// before instance (still functional) is destroyed
-	...destroyed(){}...	// after a vue instance has been destroyed
+    beforeCreate(){}  // after instance initialized, before data observation, event/watcher
+	created(){}	// after the instance is created
+	beforeMount(){} // called right before the mounting begins
+    mounted(){}	// after instance has been mounted, "el" is replaced by "vm.$el"
+	beforeUpdate(){}   // data changes, before the virtual DOM is re-rendered and patched
+    updated(){}	// after data change causes the virtual DOM to re-rendered
+	activated(){}	// when a kept-alive component is activated
+	beforeDestroy(){}	// before instance (still functional) is destroyed
+	destroyed(){}	// after a vue instance has been destroyed
 }
 function buildInDirective() {
 	// directive "v-bind" can be used for binding any sort of attrs, class, id, src...
 	// <div v-bind:attrName="vue.$data.propName">
 	...data: { key: "value" }...	// <div v-bind:class="key"> => <div class="value">
 }
-function customDirective(){
+function customDirective() {
     // register global directive
     // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
     Vue.directive("demo", {     
@@ -32,7 +35,7 @@ function customDirective(){
             // "binding.arg" contain passed "argName" value
             // "vnode" = node in a virtual dom
             if (binding.arg === "argName") {}
-                if (binding.modifiers["myModifName"]) {}
+            if (binding.modifiers["myModifName"]) {}
             },
         inserted(el, binding, vnode) {
             // after inserted in paret node
@@ -42,6 +45,9 @@ function customDirective(){
         },
         componentUpdated(el, binding, vnode, oldVnode) {
             // after components updates with children components
+        },
+        unbind: function () {
+            // 
         }
     });
 
@@ -56,14 +62,14 @@ function customDirective(){
         }
     };
 }
-function filter(){
+function filter() {
     // transform data representation, not data itself
-    Vue.filter('capitalize', function(value){
-        // global filter registration
+    Vue.filter("capitalize", function(value){
+        // return processed value
     });
 
     export default {
-        filters: {      // local filter registration
+        filters: {
             capitalize: function (value) {
                 if (!value) return '';
                 value = value.toString();
@@ -208,25 +214,19 @@ function passData() {
         <container v-bind="{childParamOne: data.papam, childParamTwo: data.papams}">
     }
 }
-function propValidation(){
-	export default {
-		props: {
-			propOne: String,
-			propTwo: [String, Array],
-			propThree: {
-				type: String,
-				required: true
-			},
-			propFour: {
-				type: Object,
-				default: function() {
-					return {
-						key: 'value'
-					};
-				}
-			}
-		}
-	}
+function propValidation() {
+	Vue.component('props-demo-advanced', {
+      props: {
+        age: {
+          type: Number,
+          default: 0,
+          required: true,
+          validator: function (value) {
+            return value >= 0
+          }
+        }
+      }
+    })
 }
 function computedProp() {
 	{	// simple computed property
@@ -241,44 +241,77 @@ function computedProp() {
 		});
 		// <input v-model="vue.$data.prop"><p>{{vue.$computed.prop}}</p>
 	}
-}
-function watchProp(){
-    // <input v-model="question"> <p> {{ answer }} </p>
-    export default {
-        data: function () {
-            return {
-                question: '',
-                answer: 'I cannot give you an answer until you ask a question!',
-                obj: {
-                    key: "",
-                    name: ""
-                }
-            };
-        },
-        watch: {
-            question: function () {
-                this.answer = 'Waiting until you stop typing...';
-                this.getAnswer();
+    {   // computed property with set and get
+        data: { a: 1 },
+        computed: {
+            // get only, just need a function
+            aDouble: function () {
+              return this.a * 2
             },
-            "obj.key": function() { /* logic here*/ }
-        },
-        methods: {
-            getAnswer: _.debounce(function () {         // https://lodash.com/docs#debounce
-                if (this.question.indexOf('?') === -1) {
-                    this.answer = 'Question should contain a question mark';
-                    return;
-                }
-                this.answer = '...thinking...';
-                let vm = this;
-                axios.get('https://yesno.wtf/api')      // https://www.npmjs.com/package/axios
-                .then(function (response) {
-                    vm.answer = response.data.answer;
-                })
-                .catch(function (error) {
-                        // error logic
-                    });
-            }, 1000)
+            // both get and set
+            aPlus: {
+              get: function () {
+                return this.a + 1
+              },
+              set: function (v) {
+                this.a = v - 1
+              }
+            }
         }
+    }
+}
+function watchProp() {
+    // <input v-model="question"> <p> {{ answer }} </p>
+    {
+        export default {
+            data: function () {
+                return {
+                    question: '',
+                    answer: 'I cannot give you an answer until you ask a question!',
+                    obj: {
+                        key: "",
+                        name: ""
+                    }
+                };
+            },
+            watch: {
+                question: function () {
+                    this.answer = 'Waiting until you stop typing...';
+                    this.getAnswer();
+                },
+                "obj.key": function() { /* logic here*/ }
+            },
+            methods: {
+                getAnswer: _.debounce(function () {         // https://lodash.com/docs#debounce
+                    if (this.question.indexOf('?') === -1) {
+                        this.answer = 'Question should contain a question mark';
+                        return;
+                    }
+                    this.answer = '...thinking...';
+                    let vm = this;
+                    axios.get('https://yesno.wtf/api')      // https://www.npmjs.com/package/axios
+                    .then(function (response) {
+                        vm.answer = response.data.answer;
+                    })
+                    .catch(function (error) {
+                            // error logic
+                        });
+                }, 1000)
+            }
+        }
+    }
+    {   // deep watcher
+        var vm = new Vue({
+          data: {
+            a: 1
+          },
+          watch: {
+            c: {
+              handler: function (val, oldVal) { },
+              deep: true
+            }
+          }
+        });
     }
 }
 function targetHtmlEl() {
@@ -296,7 +329,7 @@ function listRendering() {
 		}
 	}
 }
-function formHandling(){
+function formHandling() {
     // <input v-bind:value="something" v-on:input="something = $event.target.value">
     
     /*  <select v-model="selected">
@@ -319,7 +352,7 @@ function formHandling(){
         }
     }
 }
-function conditionalRendering(){
+function conditionalRendering() {
     /*  <template v-if="loginType === 'username'">
             <label>Username</label>
             <input placeholder="Enter your username">
@@ -363,8 +396,9 @@ function classBinding() {
             };
         }
     }
+    // <div v-for="route in routes" :class="[{active : route.name === $data.activeNavTab}, 'class-name__' + route.style]">
 }
-function event(){
+function event() {
     {   // event modifiers
         // <a v-on:click.stop.prevent="doThat"></a>
         // <input v-on:keyup.13="submit">
@@ -435,6 +469,7 @@ function router() {
     }
     {   // router-link
         // component for enabling user navigation
+        <router-link v-on:click.native="activeNavTab = route.name">
         <router-link to="home">     // value of the "to=" prop will be passed to router.push() internally
         <router-link v-bind:to="'home'">
         <router-link :to="{ path: 'home' }">
@@ -549,7 +584,7 @@ function mixin() {
         }
     });
 }
-function plugins(){
+function plugins() {
     // plugin index.js
     export default {
         install(Vue) {
@@ -561,10 +596,7 @@ function plugins(){
         Vue.use(Popup);
     };
 }
-
-
-
-function components(){
+function components() {
     ???
     // DYNAMIC COMPONENT, will be destoyed each time a new one is called
     /*<template> <div><h4>Component one</h4></div> </template>*/
@@ -590,7 +622,10 @@ function components(){
     	components: { compOne: ComponentOne, compTwo: ComponentTwo }
     }
 }
-function vuex(){
+function functionalComponent() {
+    // https://vuejs.org/v2/guide/render-function.html#Functional-Components
+}
+function vuex() {
     // vuex.js config file
     import Vue from 'vue';
     import Vuex from 'vuex';
@@ -694,4 +729,18 @@ function vuex(){
     	template: '<app></app>',
     	components: { App }
     });
+}
+function api() {
+    {   // nextTick, will return Promise if no callback provided
+        // gobal method with callback function
+        Vue.nextTick(function () {});
+        // instance method with callback function
+        this.$nextTick(function () {
+            this.$el.textContent = "data";  // context will be bound to the current instance
+        });
+    }
+    {   // 
+        //
+    }
+    
 }
