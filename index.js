@@ -585,16 +585,21 @@ function mixin() {
     });
 }
 function plugins() {
-    // plugin index.js
-    export default {
-        install(Vue) {
-            Vue.popup = Vue.prototype.$popup = new Vue();
-        }
+    {   // simple plugin
+        // plugin index.js
+        export default {
+            install(Vue) {
+                Vue.popup = Vue.prototype.$popup = new Vue();
+            }
 
-        // main.js plugin global registration
-        import Popup from './plugins/popup';
-        Vue.use(Popup);
-    };
+            // main.js plugin global registration
+            import Popup from './plugins/popup';
+            Vue.use(Popup);
+        };
+    }
+    {   //
+        //
+    }
 }
 function components() {
     ???
@@ -741,6 +746,5 @@ function api() {
     }
     {   // 
         //
-    }
-    
+    } 
 }
