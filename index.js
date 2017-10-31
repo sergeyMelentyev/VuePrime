@@ -41,17 +41,19 @@ function buildInDirective() {
     }
 function customDirective() {
     // register global directive
-    // <div v-demo:argName.myModifName="{ text: 'hello' }"></div>
+    // "el" element the directive is bound to
+    // "binding" contain data from passed value, "binding.value.text"
+    // "binding.arg" contain passed "argName" value
+    // "vnode" = node in a virtual dom
+    <div v-demo:argName.myModifName="{ text: 'hello' }"><div>
+    <div v-demo="{ color: 'white', text: 'hello!' }"><div>  // pass multiple vals
+
     Vue.directive("demo", {     
         bind(el, binding, vnode) {
-            // after directive is attached
-            // "el" = element the directive is bound to
-            // "binding" contain data from passed value, "binding.value.text"
-            // "binding.arg" contain passed "argName" value
-            // "vnode" = node in a virtual dom
+            // called once after directive is attached
             if (binding.arg === "argName") {}
             if (binding.modifiers["myModifName"]) {}
-            },
+        },
         inserted(el, binding, vnode) {
             // after inserted in paret node
         },
@@ -96,144 +98,74 @@ function filter() {
     }
 
 function component() {
-	{	// local component with inline template
-		let counter = Vue.component("counter", {
-			template: `
-			<div>
-			<div>Count: {{this.count}}</div>
-			<button v-on:click='increment'>increment</button>
-			</div>
-			`,
-			data() {
-				return { count: 0 }
-			},
-			methods: {
-				increment() { this.count += 1 }
-			}
-		})
-		let app = new Vue({
-			el: "#app",
-			components: { counter }
-		})
-		// <div id="app"> <counter></counter> </div>
-	}
-	{	// global component with inline template
-		Vue.component('custom', {
-			template: '<button v-on:click="addOne"> {{ counter }} </button>',
-			data: function () {
-				return {
-					counter: 0
-				}
-			},
-			methods: {
-				addOne: function () {
-					++this.counter
-				}
-			}
-		})
-		let app = new Vue({
-			el: "#app"
-		})
-		// <div id="app"> <custom></custom> </div>
-	}
-    {   // global component with external custom.vue source file
-        /*<template><div>...</div></template>*/     // Custom.vue
-        export default { }
+	// dynamic
 
-        //use component <custom></custom>
-        import Custom from "./Custom.vue"
-        Vue.component("custom", Custom)
-        new Vue({
-            el: "app",
-            render: h => h(App)
-        })
-    }
+    // static
+    <template>
+        <div v-once>...<div>    // contains a lot of static content, evaluated once and cached
+    <template>
     }
 function slot() {
-    {   // named slots
-        /*  <template><div>
-                <slot name="header"></slot>
-                <div name="data" v-for="item in childData"> {{item}} </div>
-            </div></template>  */
-       export default { name: 'custom', props: ['childData'] }
+    // single slot, parent content will be discarded if child template contains no <slot>
+    <template id="child">
+        <h1> title <h1>
+        <slot> fallback content <slot>
+    <template>
 
-       /* <template><div id="app">
-            <custom v-bind:childData="values">
-                <h4 slot="header"></h4>
-            </custom>
-        </div></template>  */
-        import Custom from './components/Custom.vue'
-        export default {
-            name: "app",
-            data: function () {
-                return { values: ['Data', 'from', 'server'] }
-            },
-            components: { Custom }
-        }
-    }
-    {   // scoped slots 
-        /*  <template><div>
-                <slot name="header"></slot>
-                <ul>
-                    <slot name="item" v-for="item in childProps" v-bind:text="item.text"></slot>
-                </ul>
-            </div></template>  */
-        export default { name: "custom", props: ["childProps"] }
+    <template id="parent">
+        <child> <p> data <p> <p> data <p> <child>
+    <template>
 
-        /*  <template><div>
-                <custom v-bind:childProps="parentData">
-                    <h4 slot="header">Component Header</h4>
-                    <template slot="item" scope="props">
-                        <li>{{ props.text }}</li>
-                    </template>
-                </custom>
-            </div></template> */
-            import Custom from './components/Custom.vue'
-            export default {
-                name: 'app',
-                data: function () {
-                    return { parentData: [{text: 'a'}, {text: 'b'}, {text: 'c'}] }
-                },
-                components: { Custom }
-            }
-    }
+
+    // named slot can have unnamed (default) slot serves as a catch-all unmatched content
+    <template id="child">
+        <header> <slot name="header"> <header>
+        <main> <slot name="main"> <main>
+        <footer> <slot> fallback content <slot> <footer>
+    <template>
+
+    <template id="parent">
+        <child>
+            <h1 slot="header"> title <h1>
+            <div slot="main"> main content <div>
+            <footer> footer content <footer>
+        <child>
+    <template>
+
+    // scoped slot, pass data into a slot
+    <template id="child">
+        <ul>
+            <slot name="item" v-for="item in items" v-bind:text="item.text"><slot>
+        <ul>
+    <template>
+
+    <template id="parent">
+        <child v-bind:items="items">
+            <li slot="item" slot-scope="props"> {{ props.text }} <li>
+        <child>
+    <template>
     }
 function passData() {
-	{	// pass data down to local inline template component 
-		let counter = Vue.component("counter", {
-			template: `
-			<div>
-			<div>Count: {{this.count}}</div>
-			<button v-on:click='increment'>increment</button>
-			</div>
-			`,
-			props: {
-				addNum: {
-					type: Number,
-					default: 1
-				}
-			},
-			data() {
-				return { count: 0 }
-			},
-			methods: {
-				increment() { this.count += this.addNum }
-			}
-		})
-		let app = new Vue({
-			el: "#app",
-			components: { counter }
-		})
-		// <counter v-bind:add-num="5"></counter>
-	}
-    {   // v-bind several values
-        <container v-bind="{childParamOne: data.papam, childParamTwo: data.papams}">
-    }
-    }
+    // pass data down to child component
+    <parent childPropName="parentPropName">             // binding normal attr to an expression
+    <parent v-bind:childPropName="parentPropName">      // dynamic binding, if data in parent updated it will flow down to child
+    <parent v-bind="{childPropOne: vm.$data.papam, childPropTwo: vm.$data.papams}">
 
+    // pass data up from child to parent
+    <parent v-on:eventNameFromChild="parentMethodName">
+    vm.child.methods: { childMethodName() { this.$emit("eventNameFromChild"); this.$emit("eventNameFromChild", data) } }
+
+    // pass data from non parent-child components
+    export const bus = new Vue()
+
+    import { bus } from "./main"        // emittter
+    bus.$emit("event-name", data)
+
+    import { bus } from "./main"        // listener
+    created() { bus.$on("event-name", function (data) { ... }) }
+    }
 function propValidation() {
-	Vue.component('props-demo-advanced', {
-      props: {
+	props: {
         age: {
           type: Number,
           default: 0,
@@ -243,8 +175,8 @@ function propValidation() {
           }
         }
       }
-    })
     }
+
 function computedProp() {
 	{	// computed and reactive getter func with no side effect, cached based on dependencies
         // will re-evaluate when dependencies changed, multiple access to vm.upper will return previous result (if vm.text is the same)
@@ -375,25 +307,15 @@ function listRendering() {
     <li v-for="todo in todos" v-if="!todo.isComplete"> {{ todo }} <li>
     }
 function formHandling() {
-    // <input v-bind:value="something" v-on:input="something = $event.target.value">
+    <select v-model="selected">                                                         // syntactic sugar
+    <input v-bind:value="something" v-on:input="something = $event.target.value">       // the same as above
+    <custom-input v-bind:value="something" v-on:input="value => { something = value }"> // used with component
     
-    /*  <select v-model="selected">
-            <option v-for="option in options" v-bind:value="option.value">
-                {{ option.text }}
-            </option>
-        </select>
-        <span>Selected: {{ selected }}</span>*/
-    
-    export default {
-        data: function () {
-            return {
-                selected: 'A',
-                options: [
-                    { text: 'One', value: 'A' },
-                    { text: 'Two', value: 'B' },
-                    { text: 'Three', value: 'C' }
-                ]
-            }
+    <option v-for="option in options" v-bind:value="option.value">{{ option.text }}
+    data() {
+        return {
+            something: '',
+            options: [ { text: 'One', value: 'A' }, { text: 'Two', value: 'B' } ]
         }
     }
     }
@@ -459,22 +381,8 @@ function event() {
     <a v-on:click.stop.prevent="doThat">
     <input v-on:keyup.13="submit">
 
-    // parent-child communication
-    // v-on must be used to listen to events emitted by children
-    <template v-on:eventNameFromChild="parentMethodName">
-    vm.parentComponent.methods: { parentMethodName() {...} }
-    vm.childComponent.methods: { childMethodName() {
-                this.$emit('eventNameFromChild'); this.$emit('eventNameFromChild', data) }
-    }
-
-    // non parent-child communication
-    export const bus = new Vue()
-
-    import { bus } from './main'   // emittter
-    bus.$emit('event-name', data)
-
-    import { bus } from './main'   // listener
-    created() { bus.$on("event-name", function (data) { ... }) }
+    // native event
+    <component v-on:click.native="doTheThing">
     }
 
 function router() {
@@ -607,7 +515,8 @@ function router() {
 
 function mixin() {
     // compose reusable functionality for vue components
-    // mixin load first, component data second with ability to override mixin
+    // hook funcs with the same name are merged into an array
+    // mixin load first, component data second with ability to override (method, component, directive)
     export const myMixin = {
         created: function () {
             this.hello()
@@ -648,35 +557,6 @@ function plugins() {
     {   //
         //
     }
-    }
-function components() {
-    ???
-    // DYNAMIC COMPONENT, will be destoyed each time a new one is called
-    /*<template> <div><h4>Component one</h4></div> </template>*/
-    export default { activated(){}, deactivated(){} }
-
-    /*<template> <div><h4>Component two</h4></div> </template>*/
-    export default { activated(){}, deactivated(){} }
-
-    /*<template>
-      <div>
-        <button v-on:click="selectedComp = 'comp-one'">First</button>
-        <button v-on:click="selectedComp = 'comp-two'">Second</button>
-        <keep-alive><component v-bind:is="selectedComp"></component></keep-alive>
-      </div>
-      </template>*/
-    import ComponentOne from './components/ComponentOne.vue'
-    import ComponentTwo from './components/ComponentTwo.vue'
-    export default {
-    	name: 'app',
-    	data: function () {
-    		return { selectedComp: 'comp-one' }
-    	},
-    	components: { compOne: ComponentOne, compTwo: ComponentTwo }
-    }
-    }
-function functionalComponent() {
-    // https://vuejs.org/v2/guide/render-function.html#Functional-Components
     }
 
 function vuex() {
@@ -803,3 +683,15 @@ function api() {
         //
     } 
     }
+
+
+// scoped slots
+
+// dynamic components
+// async components
+// recursive components
+// functional components
+
+// render function
+
+// $refs
