@@ -80,21 +80,31 @@ function customDirective() {
     }
     }
 function filter() {
-    // transform data representation, not data itself
-    Vue.filter("capitalize", function(value){
-        // return processed value
-    })
+    // via method call
+    <li v-for="story in storiesBy('Sergey')">
+    methods:
+        storiesBy(writer) { return this.stories.filter(story => story.writer === writer) }
 
-    export default {
-        filters: {
-            capitalize: function (value) {
-                if (!value) return ''
-                value = value.toString()
-                return value.charAt(0).toUpperCase() + value.slice(1)
-            }
-        }
+    // via computed props
+    computed:
+        famous() { return this.stories.filter(item => item.upvotes > 25) }
+
+    // via global registration
+    Vue.filter("capitalize", function(value){...})  // {{ value | capitalize }}
+    filters:
+        capitalize(val) { return value.charAt(0).toUpperCase() + value.slice(1) }
     }
-    // {{ value | capitalize }}         // use case inside vue template
+function order() {
+    // via computed props
+    <li v-for="story in orderedStories">
+    <button @click="order *= -1">       // toggle order
+
+    data: { stories: [...], order : -1 }
+    computed:
+        orderedStories() {
+            var order = this.order
+            return this.stories.sort((a, b) => (a.upvotes - b.upvotes) * order)
+        }
     }
 
 function component() {
