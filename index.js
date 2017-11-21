@@ -109,6 +109,10 @@ function order() {
 
 function component() {
 	// dynamic
+    <component :is="currentComponent">
+    <p v-on:click="currentComponent = 'componentTwo'">
+    data() { return { currentComponent: "componentOne" } }
+    components: { ComponentOne, componentTwo }
 
     // static
     <template>
@@ -360,23 +364,22 @@ function classBinding() {
     }
 
     // array syntax
-    <div v-bind:classAttr="[activeClass, errorClass]">
-    data: function () {
-        return { activeClass: "active", errorClass: "danger" }
-    }
+    <div v-bind:classAttr="[variable, 'className']">
+    data () { return { activeClass: "active", errorClass: "danger" } }
+
     // toggle classes
     <div v-bind:classAttr="[isActive ? activeClass : '', errorClass]">
     <div v-for="route in routes" v-bind:classAttr="[{active : route.name === $data.activeTab}, 'class-name__' + route.style]">
 
     // binding inline styles
     <div v-bind:style="[baseStyles, overridingStyles]">
-    <div v-bind:style="[ product.offer ? {'justify-content': 'flex-start'}: {}]">
+    <div v-bind:style="[product.offer ? {'justify-content': 'flex-start'}: {}]">
 
     // binding style obj, can be used with computed prop that return an obj
     <div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }">
-    data: { activeColor: "red", fontSize: 30 }
+    data(): { activeColor: "red", fontSize: 30 }
     <div v-bind:style="styleObject">
-    data: { styleObject: { color: "red", fontSize: "13px" } }
+    data(): { styleObject: { color: "red", fontSize: "13px" } }
     }
 
 function event() {
@@ -393,6 +396,9 @@ function event() {
 
     // native event
     <component v-on:click.native="doTheThing">
+
+    // remove event
+    bus.$off(["eventName"])     // use with beforeDestroy() method
     }
 
 function router() {
@@ -694,6 +700,24 @@ function api() {
     } 
     }
 
+function http() {
+    axios({
+        method: "get",
+        url: "/user/sergmal"
+    }).then(function (response) {...}).catch(function (error) {...})
+
+    // shorthands
+    axios.request(config)
+    axios.get(url[, config])
+    axios.delete(url[, config])
+    axios.head(url[, config])
+    axios.post(url[, data[, config]])
+    axios.put(url[, data[, config]])
+    axios.patch(url[, data[, config]])
+
+    axios.get("/api/stories").then(response => Vue.set(vm, "stories", response.data))
+    upvoteStory(story) { axios.patch("/api/stories/" + story.id, story) }
+    }
 
 // scoped slots
 
