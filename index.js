@@ -26,6 +26,10 @@ function lifeCycle() {
 	beforeDestroy(){}	// before instance (still functional) is destroyed
 	destroyed(){}	// after a vue instance has been destroyed
     }
+function reactivity() {
+    //
+    this.$set(this.target.obj.name, "target.obj.key.name", "required.value")
+    }
 
 function buildInDirective() {
 	// directive "v-bind" can be used for binding any sort of attrs, class, id, src...
