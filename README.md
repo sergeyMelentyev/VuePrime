@@ -14,6 +14,5 @@ https://router.vuejs.org/en/
 
 https://habrahabr.ru/post/332628/
 
--== FIREBASE AUTH ==-
+https://habrahabr.ru/post/345814/
 
-https://medium.com/dailyjs/authenticating-a-vue-js-application-with-firebase-ui-8870a3a5cff8
