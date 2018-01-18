@@ -5,6 +5,7 @@ function cookBook() {
       <p slot="main-text"> ... <p>
     <my-component>
     }
+
 function expression() {
     // single JavaScript expression
     {{ number + 1 }}
@@ -106,6 +107,26 @@ function component() {
     <template>
         <div v-once>...<div>    // contains a lot of static content, evaluated once and cached
     <template>
+
+    // ref directly access a child component, not reactive
+    <div id="parent">
+      <user-profile ref="profile" />
+    var child = this.$refs.profile
+
+    // async load component from the server when it needed
+    // factory func async resolve component definition, will be triggered when need to be rendered
+    new Vue({
+      components: {
+        "my-component": () => import("./my-async-component")    // return promise
+      }
+    })
+    const AsyncComp = () => ({
+      component: import("./MyComp.vue"),    // component to load. should be a Promise
+      loading: LoadingComp,                 // component to use while the async component is loading
+      error: ErrorComp,                     // component to use if the load fails
+      delay: 200,                           // delay before showing the loading component. Default: 200ms
+      timeout: 3000                         // error comp will be displayed if timeout is provided and exceeded
+    })
     }
 function slot() {
     // single slot, parent content will be discarded if child template contains no <slot>
@@ -553,8 +574,9 @@ function router() {
 
 function mixin() {
     // compose reusable functionality for vue components
-    // hook funcs with the same name are merged into an array
+    // hook func with same name are merged into an array, all will be called
     // mixin load first, component data second with ability to override (method, component, directive)
+    // use Vue.config.optionMergeStrategies for custom merge logic
     export const myMixin = {
         created: function () {
             this.hello()
@@ -743,11 +765,8 @@ function http() {
 
 // scoped slots
 
-// dynamic components
 // async components
 // recursive components
 // functional components
 
 // render function
-
-// $refs
