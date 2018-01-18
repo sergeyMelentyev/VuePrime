@@ -1,3 +1,10 @@
+function cookBook() {
+    // reusable component
+    <my-component v-bind:childPropName="parentPropName" v-on:eventNameFromChild="parentMethodName">
+      <img slot="icon" src="...">
+      <p slot="main-text"> ... <p>
+    <my-component>
+    }
 function expression() {
     // single JavaScript expression
     {{ number + 1 }}
@@ -83,39 +90,16 @@ function customDirective() {
         }
     }
     }
-function filter() {
-    // via method call
-    <li v-for="story in storiesBy('Sergey')">
-    methods:
-        storiesBy(writer) { return this.stories.filter(story => story.writer === writer) }
-
-    // via computed props
-    computed:
-        famous() { return this.stories.filter(item => item.upvotes > 25) }
-
-    // via global registration
-    Vue.filter("capitalize", function(value){...})  // {{ value | capitalize }}
-    filters:
-        capitalize(val) { return value.charAt(0).toUpperCase() + value.slice(1) }
-    }
-function order() {
-    // via computed props
-    <li v-for="story in orderedStories">
-    <button @click="order *= -1">       // toggle order
-
-    data: { stories: [...], order : -1 }
-    computed:
-        orderedStories() {
-            var order = this.order
-            return this.stories.sort((a, b) => (a.upvotes - b.upvotes) * order)
-        }
-    }
 
 function component() {
-	// dynamic
+	// dynamic, wrap in <keep-alive> in order to preserve state and avoid re-rendering
     <component :is="currentComponent">
     <p v-on:click="currentComponent = 'componentTwo'">
-    data() { return { currentComponent: "componentOne" } }
+    data() {
+        return {
+            currentComponent: "componentOne"
+        }
+    }
     components: { ComponentOne, componentTwo }
 
     // static
@@ -131,15 +115,21 @@ function slot() {
     <template>
 
     <template id="parent">
-        <child> <p> data <p> <p> data <p> <child>
+        <child> <p> data <p> <child>
     <template>
 
 
     // named slot can have unnamed (default) slot serves as a catch-all unmatched content
     <template id="child">
-        <header> <slot name="header"> <header>
-        <main> <slot name="main"> <main>
-        <footer> <slot> fallback content <slot> <footer>
+        <header>
+            <slot name="header">
+        <header>
+        <main>
+            <slot name="main">
+        <main>
+        <footer>
+            <slot> fallback content <slot>
+        <footer>
     <template>
 
     <template id="parent">
@@ -159,10 +149,11 @@ function slot() {
 
     <template id="parent">
         <child v-bind:items="items">
-            <li slot="item" slot-scope="props"> {{ props.text }} <li>
+            <li slot="item" slot-scope="props"> {{ props.text }} <li>   // special attribute "slot-scope" must exist
         <child>
     <template>
     }
+
 function passData() {
     // pass data down to child component
     <parent childPropName="parentPropName">             // binding normal attr to an expression
@@ -171,7 +162,12 @@ function passData() {
 
     // pass data up from child to parent
     <parent v-on:eventNameFromChild="parentMethodName">
-    vm.child.methods: { childMethodName() { this.$emit("eventNameFromChild"); this.$emit("eventNameFromChild", data) } }
+    vm.child.methods: {
+        childMethodName() {
+            this.$emit("eventNameFromChild")
+            this.$emit("eventNameFromChild", data)
+        }
+    }
 
     // pass data from non parent-child components
     export const bus = new Vue()
@@ -180,19 +176,37 @@ function passData() {
     bus.$emit("event-name", data)
 
     import { bus } from "./main"        // listener
-    created() { bus.$on("event-name", function (data) { ... }) }
+    created() {
+        bus.$on("event-name", function (data) { ... })
+    }
     }
 function propValidation() {
+    // validated before component instance created, instance props (data, computed, methods) will not be available
 	props: {
-        age: {
+        propA: Number,
+        propB: [String, Number],        // Boolean, Function, Object, Array, Symbol
+        propC: {
+          type: String,
+          required: true
+        },
+        propD: {
           type: Number,
-          default: 0,
-          required: true,
+          default: 100
+        },
+        propE: {
+          type: Object,
+          default: function () {
+            return { message: "hello" }
+          }
+        },
+        propF: {
           validator: function (value) {
-            return value >= 0
+            return value > 10
           }
         }
       }
+    // non-prop attribute, will be added to the component root element
+
     }
 
 function computedProp() {
@@ -324,6 +338,33 @@ function listRendering() {
     // rendering with condition
     <li v-for="todo in todos" v-if="!todo.isComplete"> {{ todo }} <li>
     }
+function listFilter() {
+    // via method call
+    <li v-for="story in storiesBy('Sergey')">
+    methods:
+        storiesBy(writer) { return this.stories.filter(story => story.writer === writer) }
+
+    // via computed props
+    computed:
+        famous() { return this.stories.filter(item => item.upvotes > 25) }
+
+    // via global registration
+    Vue.filter("capitalize", function(value){...})  // {{ value | capitalize }}
+    filters:
+        capitalize(val) { return value.charAt(0).toUpperCase() + value.slice(1) }
+    }
+function listOrder() {
+    // via computed props
+    <li v-for="story in orderedStories">
+    <button @click="order *= -1">       // toggle order
+
+    data: { stories: [...], order : -1 }
+    computed:
+        orderedStories() {
+            return this.stories.sort((a, b) => (a.upvotes - b.upvotes) * this.order)
+        }
+    }
+
 function formHandling() {
     <select v-model="selected">                                                         // syntactic sugar
     <input v-bind:value="something" v-on:input="something = $event.target.value">       // the same as above
@@ -389,7 +430,9 @@ function classBinding() {
 function event() {
     // use method name, DOM event will be passed automaticaly
     <button v-on:click="greet">
-    methods: { greet(event) { if (event) alert(event.target.tagName) } }    // access the original DOM event
+    methods: {
+        greet(event) { if (event) alert(event.target.tagName) } // access the original DOM event
+    }
 
     // use method call
     <button v-on:click="greet('name', $event)">  
