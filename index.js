@@ -4,6 +4,17 @@ function cookBook() {
       <img slot="icon" src="...">
       <p slot="main-text"> ... <p>
     <my-component>
+
+    // dynamic component
+    <component :is="checkCondition ? 'router-link' : 'span'" :to="checkCondition ? getLinkMethodCall : '#'" />
+
+    // async beforeMount data request
+    vm.created() {
+        // send request, receive responce, update vm.data props and use computed props for further data manipulation
+    }
+
+    // props dynamic binding, child component will watch parent component computed prop and update UI
+    <componentName v-bind="{childPropName: parentComponentComputedPropName}" />
     }
 
 function expression() {
@@ -174,6 +185,11 @@ function slot() {
         <child>
     <template>
     }
+function functionalComp() {
+    // no script tag is required
+    <template function>
+        <h1>{{props.header}}
+}
 
 function passData() {
     // pass data down to child component
@@ -573,10 +589,13 @@ function router() {
     }
 
 function mixin() {
+    // always use plugin wrapper for global mixins
+
     // compose reusable functionality for vue components
     // hook func with same name are merged into an array, all will be called
     // mixin load first, component data second with ability to override (method, component, directive)
     // use Vue.config.optionMergeStrategies for custom merge logic
+
     export const myMixin = {
         created: function () {
             this.hello()
@@ -593,29 +612,18 @@ function mixin() {
         name: 'app',
         mixins: [myMixin]
     }
-
-    // global mixin registration, will be added to all instances
-    Vue.mixin({
-        created() {
-            // logic here
-        }
-    })
     }
 function plugins() {
-    {   // simple plugin
-        // plugin index.js
-        export default {
-            install(Vue) {
-                Vue.popup = Vue.prototype.$popup = new Vue()
-            }
-
-            // main.js plugin global registration
-            import Popup from './plugins/popup'
-            Vue.use(Popup)
+    // simple plugin
+    // plugin index.js
+    export default {
+        install(Vue) {
+            Vue.popup = Vue.prototype.$popup = new Vue()
         }
-    }
-    {   //
-        //
+
+        // main.js plugin global registration
+        import Popup from './plugins/popup'
+        Vue.use(Popup)
     }
     }
 
@@ -764,8 +772,8 @@ function http() {
     }
 
 // scoped slots
-
 // async components
+
 // recursive components
 // functional components
 
