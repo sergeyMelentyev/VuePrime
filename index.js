@@ -189,7 +189,7 @@ function functionalComp() {
     // no script tag is required
     <template function>
         <h1>{{props.header}}
-}
+    }
 
 function passData() {
     // pass data down to child component
@@ -454,8 +454,9 @@ function classBinding() {
     <div v-for="route in routes" v-bind:classAttr="[{active : route.name === $data.activeTab}, 'class-name__' + route.style]">
 
     // binding inline styles
-    <div v-bind:style="[baseStyles, overridingStyles]">
-    <div v-bind:style="[product.offer ? {'justify-content': 'flex-start'}: {}]">
+    v-bind:style="[baseStyles, overridingStyles]"
+    v-bind:style="[product.offer ? {'justify-content': 'flex-start'}: {}]">
+    v-bind:style="[{backgroundColor: item['color_hex']}, (item.id == id) ? {border: '1px solid' + item['color_hex']} : {} ]"
 
     // binding style obj, can be used with computed prop that return an obj
     <div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }">
@@ -629,6 +630,8 @@ function plugins() {
 
 function vuex() {
     // vuex.js config file
+    this.$store.getters["promotions/getPromotionModelPaginationCurrentIndex"]
+    
     import Vue from 'vue'
     import Vuex from 'vuex'
     Vue.use(Vuex)
@@ -751,30 +754,3 @@ function api() {
         //
     } 
     }
-
-function http() {
-    axios({
-        method: "get",
-        url: "/user/sergmal"
-    }).then(function (response) {...}).catch(function (error) {...})
-
-    // shorthands
-    axios.request(config)
-    axios.get(url[, config])
-    axios.delete(url[, config])
-    axios.head(url[, config])
-    axios.post(url[, data[, config]])
-    axios.put(url[, data[, config]])
-    axios.patch(url[, data[, config]])
-
-    axios.get("/api/stories").then(response => Vue.set(vm, "stories", response.data))
-    upvoteStory(story) { axios.patch("/api/stories/" + story.id, story) }
-    }
-
-// scoped slots
-// async components
-
-// recursive components
-// functional components
-
-// render function
